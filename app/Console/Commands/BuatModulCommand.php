@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class BuatModulCommand extends Command
@@ -45,8 +46,9 @@ class BuatModulCommand extends Command
         $resourceNamespace = "App\\Http\\Resources";
         $requestNamespace = "App\\Http\\Requests";
 
-        // --- Generate Model & Migration ---
-        $this->call('make:model', ['name' => "{$name}", '-m']);
+        $migration = $this->call('make:model', ['name' => "{$name}", '-m']);
+
+        Log::info("Model {$migration} created successfully.");
 
         $this->info("Model {$name} and its migration created successfully.");
 

@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\PemetaanController;
 use App\Http\Controllers\PersonilController;
+use App\Http\Controllers\ThumbnailArtikelController;
 use App\Http\Controllers\UnorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +13,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
+});
+
+Route::prefix('landing')->group(function () {
+    Route::get('/artikel', [ArtikelController::class, 'landing']);
+    Route::get('/pemetaan', [PemetaanController::class, 'landing']);
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -42,5 +50,32 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/{id}', [KategoriController::class, 'show']);
         Route::put('/{id}', [KategoriController::class, 'update']);
         Route::delete('/{id}', [KategoriController::class, 'destroy']);
+    });
+
+    Route::prefix('pemetaan')->group(function () {
+        Route::get('/', [PemetaanController::class, 'index']);
+        Route::get('/{id}/geojson', [PemetaanController::class, 'showGeoJson'])
+            ->name('pemetaan.geojson');
+        Route::post('/', [PemetaanController::class, 'store']);
+        Route::get('/{id}', [PemetaanController::class, 'show']);
+        Route::put('/{id}', [PemetaanController::class, 'update']);
+        Route::delete('/{id}', [PemetaanController::class, 'destroy']);
+    });
+
+
+    Route::prefix('artikel')->group(function () {
+        Route::get('/', [ArtikelController::class, 'index']);
+        Route::post('/', [ArtikelController::class, 'store']);
+        Route::get('/{id}', [ArtikelController::class, 'show']);
+        Route::put('/{id}', [ArtikelController::class, 'update']);
+        Route::delete('/{id}', [ArtikelController::class, 'destroy']);
+    });
+
+    Route::prefix('thumbnail-artikel')->group(function () {
+        Route::get('/', [ThumbnailArtikelController::class, 'index']);
+        Route::post('/', [ThumbnailArtikelController::class, 'store']);
+        Route::get('/{id}', [ThumbnailArtikelController::class, 'show']);
+        Route::put('/{id}', [ThumbnailArtikelController::class, 'update']);
+        Route::delete('/{id}', [ThumbnailArtikelController::class, 'destroy']);
     });
 });

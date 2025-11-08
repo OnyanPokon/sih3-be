@@ -9,4 +9,14 @@ class Kategori extends Model
     protected $guarded = [];
 
     protected $table = 'kategori';
+
+    public function pemetaan()
+    {
+        return $this->hasMany(Pemetaan::class);
+    }
+
+    public function artikel()
+    {
+        return $this->hasMany(Artikel::class);
+    }
 }

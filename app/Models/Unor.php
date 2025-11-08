@@ -22,4 +22,24 @@ class Unor extends Model
     {
         return $this->hasMany(Personil::class);
     }
+
+    public function pemetaan()
+    {
+        return $this->hasMany(Pemetaan::class);
+    }
+
+    public function user()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function artikel()
+    {
+        return $this->hasMany(Artikel::class);
+    }
+
+    public function produk_hukum()
+    {
+        return $this->hasMany(ProdukHukum::class);
+    }
 }
