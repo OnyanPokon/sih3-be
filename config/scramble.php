@@ -29,7 +29,16 @@ return [
         /*
          * Description rendered on the home page of the API documentation (`/docs/api`).
          */
-        'description' => '',
+        'description' => '
+            # Pendahuluan
+            Ini adalah dokumentasi API untuk Proyek SIH3. 
+
+            ## Arsitektur
+            Aplikasi ini mengikuti arsitektur Controller-Service-Repository untuk memisahkan logika...
+            - **Controller**: Menangani request & response HTTP.
+            - **Service**: Menangani logika bisnis.
+            - **Model**: Menangani interaksi database.
+        ',
     ],
 
     /*
