@@ -99,9 +99,9 @@ Sistem ini memiliki tiga level hak akses utama yang menentukan API mana yang dap
 | :--- | :--- | :--- | :--- |
 | **Superadmin** | Bapppeda | Kelola Pengguna | `API Personil` |
 | | PUPR | Kelola OPD | `API Unor` |
-| | (Semua) | Lihat Artikel | `API Artikel` |
-| | (Semua) | Lihat Pemetaan | `API Pemetaan` |
-| | (Semua) | Kelola Produk Hukum | `API Produk Hukum` |
+| |  | Lihat Artikel | `API Artikel` |
+| |  | Lihat Pemetaan | `API Pemetaan` |
+| | | Kelola Produk Hukum | `API Produk Hukum` |
 | **Admin** | ESDM | Kelola Artikel | `API Artikel by Unor` |
 | | Balai Sungai | Kelola Pemetaan | `API Pemetaan by Unor` |
 | | Badan Meteorologi.. | Perbarui Profil | `API Personil Update Profil` |
@@ -132,19 +132,41 @@ Alur pembuatan user (Personil) di sistem ini unik dan tidak bisa dilakukan secar
 2.  **Buat Personil (User) di Dalam OPD:** Setelah OPD ada, Superadmin dapat menambahkan Personil (yang juga bertindak sebagai User) ke dalam OPD tersebut melalui `POST /api/personil`. *Body request* ini **wajib** menyertakan `unor_id` dari OPD yang dibuat di langkah 1.
 3.  **Password Default:** Password untuk user (personil) yang baru dibuat secara otomatis diatur sebagai **NIP (Nomor Induk Pegawai)** dari personil tersebut. User kemudian dapat login menggunakan email dan NIP-nya.
 
-### 3. Bagaimana Cara Menampilkan Peta GeoJSON?
+### 3. Bagaimana Alur Kelola Pemetaan (Upload vs Manual)?
 
-Endpoint `GET /api/pemetaan/{id}` (yang menggunakan `PemetaanResource`) akan memberi Anda *metadata* peta. Untuk menampilkan peta di Leaflet/Mapbox, Anda harus menggunakan endpoint khusus:
+Saat membuat atau mengedit data pemetaan, ada dua `tipe` yang bisa dipilih:
+
+* **Tipe `upload`:**
+    * **Input:** `tipe: "upload"` dan `file: [FILE_UPLOAD]`.
+    * **Aturan:** File yang di-upload **harus** berupa `.zip` (berisi komponen .shp, .shx, .dbf) atau file `.geojson` mentah.
+    * **Proses:** API akan otomatis mengonversi .zip atau memvalidasi .geojson, lalu menyimpannya ke *storage*. Kolom `koordinat` di database akan dikosongkan (`NULL`).
+
+* **Tipe `manual`:**
+    * **Input:** `tipe: "manual"` dan `koordinat: [JSON_DATA]`.
+    * **Alur Frontend:** Frontend harus menampilkan peta (misal: Leaflet) dengan fitur *drawing tools* (Point, Polygon, Polyline).
+    * **Proses:** Hasil *drawing* dari pengguna (dalam format GeoJSON Feature atau Geometry) dikirim sebagai *string* JSON atau *array* ke *field* `koordinat`. API akan menyimpan data JSON ini langsung di kolom `koordinat`. Kolom `file` akan dikosongkan (`NULL`).
+
+### 4. Bagaimana Cara Menampilkan Peta (Perbandingan `upload` vs `manual`)?
+
+Endpoint `GET /api/pemetaan/{id}` (yang menggunakan `PemetaanResource`) akan memberi Anda *metadata* peta (nama, deskripsi, dll).
+
+Untuk menampilkan data peta secara visual di **Landing Page** (Leaflet/Mapbox), Anda **harus** menggunakan endpoint khusus:
 
 **`GET /api/pemetaan/{id}/geojson`**
 
-Endpoint ini secara cerdas akan:
-* Jika `tipe` = `manual`, ia akan mengembalikan data JSON mentah dari kolom `koordinat`.
-* Jika `tipe` = `upload`, ia akan membaca file (`.geojson`) dari *storage* dan menampilkannya.
+Endpoint ini dirancang cerdas untuk menangani kedua `tipe` pemetaan secara otomatis. Frontend **tidak perlu** melakukan `if/else`.
 
-Endpoint ini mengembalikan *raw* GeoJSON (`Content-Type: application/geo+json`), bukan JSON API standar, sehingga siap dibaca oleh *library* peta.
+Berikut adalah perbandingan alur datanya:
 
-### 4. Bagaimana Upload Artikel dengan Banyak Gambar?
+| Tipe Peta | Sumber Data (Database) | Proses di Backend (oleh `geojson` endpoint) | Aksi di Frontend (SAMA UNTUK KEDUANYA) |
+| :--- | :--- | :--- | :--- |
+| **`upload`** | Kolom `file` berisi path (mis: `pemetaan/map-123.geojson`) | 1. Mengambil path file dari kolom `file`. <br> 2. Membaca file dari `storage`. <br> 3. Mengembalikan isi file (`Content-Type: application/geo+json`). | 1. Panggil `GET /api/pemetaan/{id}/geojson`. <br> 2. `L.geoJSON(data).addTo(map);` |
+| **`manual`** | Kolom `koordinat` berisi data JSON (mis: `{"type": "Point", ...}`) | 1. Mengambil data JSON dari kolom `koordinat`. <br> 2. Mengembalikan data JSON tersebut (`Content-Type: application/json`). | 1. Panggil `GET /api/pemetaan/{id}/geojson`. <br> 2. `L.geoJSON(data).addTo(map);` |
+
+**Kesimpulan:** Frontend (Landing Page) **tidak perlu** bingung. Cukup panggil `GET /api/pemetaan/{id}/geojson` dan tampilkan hasilnya. Backend sudah menangani semua kompleksitas.
+
+
+### 5. Bagaimana Upload Artikel dengan Banyak Gambar?
 
 Saat membuat/mengedit artikel, Anda dapat mengunggah banyak gambar *thumbnail*.
 
@@ -161,7 +183,15 @@ Saat membuat/mengedit artikel, Anda dapat mengunggah banyak gambar *thumbnail*.
 
 Laravel adalah kerangka kerja aplikasi web dengan sintaks yang ekspresif dan elegan. Kami percaya pengembangan harus menjadi pengalaman yang menyenangkan dan kreatif agar benar-benar memuaskan.
 
-... (Bagian ini bisa diisi dengan sisa file `README.md` default Laravel) ...
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
 ## 🤝 Berkontribusi
 
