@@ -67,4 +67,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ProdukHukum::class);
     }
+
+    public function berita()
+    {
+        return $this->hasMany(Berita::class);
+    }
 }

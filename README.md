@@ -7,67 +7,54 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
----
+## About Laravel
 
-## 🌐 Tentang API Proyek Ini
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-Ini adalah dokumentasi resmi untuk **API Backend SIH3**. API ini berfungsi sebagai *headless backend* untuk mengelola seluruh data yang berkaitan dengan pemetaan, artikel, produk hukum, manajemen instansi (Unor/OPD), dan personil.
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-API ini dibangun menggunakan Laravel dan dirancang untuk melayani berbagai *client*, termasuk aplikasi web admin dan *landing page* publik.
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
----
+## Learning Laravel
 
-## 🚀 Panduan Instalasi
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-Untuk menjalankan proyek ini secara lokal, ikuti langkah-langkah berikut:
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-1.  **Clone repositori:**
-    ```bash
-    git clone https://gitlab.gorontaloprov.go.id/yasdilofficial/backend-sih3.git
-    cd backend-sih3
-    ```
+## Laravel Sponsors
 
-2.  **Install dependensi Composer:**
-    ```bash
-    composer install
-    ```
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-3.  **Salin file environment:**
-    ```bash
-    cp .env.example .env
-    ```
+### Premium Partners
 
-4.  **Generate key aplikasi:**
-    ```bash
-    php artisan key:generate
-    ```
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
 
-5.  **Konfigurasi `.env`:**
-    Sesuaikan koneksi database (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`) dan URL aplikasi (`APP_URL`) di file `.env` Anda.
+## Contributing
 
-6.  **Jalankan Migrasi & Seeder:**
-    Perintah ini akan membuat struktur tabel dan mengisi data awal (jika ada).
-    ```bash
-    php artisan migrate --seed
-    ```
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-7.  **Buat Storage Link:**
-    Ini sangat **penting** agar file yang di-upload (seperti GeoJSON dan thumbnail) dapat diakses.
-    ```bash
-    php artisan storage:link
-    ```
+## Code of Conduct
 
-8.  **Jalankan server lokal:**
-    ```bash
-    php artisan serve
-    ```
-    Aplikasi Anda sekarang berjalan di `http://127.0.0.1:8000`.
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
----
+## Security Vulnerabilities
 
-## 🏛️ Arsitektur Sistem
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-Untuk menjaga kebersihan kode dan kemudahan pemeliharaan, proyek ini mengadopsi arsitektur **Controller-Service** yang diperluas.
+## License
 
 * **Request** (`App\Http\Requests`)
     * **Tugas:** Melakukan validasi semua data yang masuk (input) dari *client*.

@@ -2,9 +2,13 @@
 
 use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PemetaanController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonilController;
+use App\Http\Controllers\ProdukHukumController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ThumbnailArtikelController;
 use App\Http\Controllers\UnorController;
 use Illuminate\Http\Request;
@@ -17,13 +21,34 @@ Route::prefix('auth')->group(function () {
 
 Route::prefix('landing')->group(function () {
     Route::get('/artikel', [ArtikelController::class, 'landing']);
+    Route::get('/artikel/{slug}', [ArtikelController::class, 'detail']);
     Route::get('/pemetaan', [PemetaanController::class, 'landing']);
+    Route::get('/produk-hukum', [ProdukHukumController::class, 'landing']);
+    Route::get('/produk-hukum/{slug}', [ProdukHukumController::class, 'detail']);
+    Route::get('/berita', [BeritaController::class, 'landing']);
+    Route::get('/berita/{slug}', [BeritaController::class, 'detail']);
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::prefix('auth')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
+    });
+
+    Route::prefix('role')->group(function () {
+        Route::get('/', [RoleController::class, 'index']);
+        Route::post('/', [RoleController::class, 'store']);
+        Route::get('/{id}', [RoleController::class, 'show']);
+        Route::put('/{id}', [RoleController::class, 'update']);
+        Route::delete('/{id}', [RoleController::class, 'destroy']);
+    });
+
+    Route::prefix('permission')->group(function () {
+        Route::get('/', [PermissionController::class, 'index']);
+        Route::post('/', [PermissionController::class, 'store']);
+        Route::get('/{id}', [PermissionController::class, 'show']);
+        Route::put('/{id}', [PermissionController::class, 'update']);
+        Route::delete('/{id}', [PermissionController::class, 'destroy']);
     });
 
     Route::prefix('personil')->group(function () {
@@ -62,13 +87,28 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::delete('/{id}', [PemetaanController::class, 'destroy']);
     });
 
-
     Route::prefix('artikel')->group(function () {
         Route::get('/', [ArtikelController::class, 'index']);
         Route::post('/', [ArtikelController::class, 'store']);
         Route::get('/{id}', [ArtikelController::class, 'show']);
         Route::put('/{id}', [ArtikelController::class, 'update']);
         Route::delete('/{id}', [ArtikelController::class, 'destroy']);
+    });
+
+    Route::prefix('berita')->group(function () {
+        Route::get('/', [BeritaController::class, 'index']);
+        Route::post('/', [BeritaController::class, 'store']);
+        Route::get('/{id}', [BeritaController::class, 'show']);
+        Route::put('/{id}', [BeritaController::class, 'update']);
+        Route::delete('/{id}', [BeritaController::class, 'destroy']);
+    });
+
+    Route::prefix('produk-hukum')->group(function () {
+        Route::get('/', [ProdukHukumController::class, 'index']);
+        Route::post('/', [ProdukHukumController::class, 'store']);
+        Route::get('/{id}', [ProdukHukumController::class, 'show']);
+        Route::put('/{id}', [ProdukHukumController::class, 'update']);
+        Route::delete('/{id}', [ProdukHukumController::class, 'destroy']);
     });
 
     Route::prefix('thumbnail-artikel')->group(function () {

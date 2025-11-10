@@ -14,6 +14,18 @@ class ProdukHukumResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'judul' => $this->judul,
+            'slug' => $this->slug,
+            'deskripsi' => $this->deskripsi,
+            'file' => $this->file,
+            'tahun' => $this->tahun,
+            'status' => $this->status,
+            'unor_id' => $this->unor,
+            'user_id' => $this->user,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
+        ];
     }
 }

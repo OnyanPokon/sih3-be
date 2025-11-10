@@ -41,6 +41,17 @@ class ArtikelService
         return $data->paginate($per_page);
     }
 
+    public function detail($slug)
+    {
+        $data = $this->model->where('slug', $slug)->where('status', 'publikasi')->first();
+
+        if (!$data) {
+            throw new ServiceException('Artikel tidak ditemukan', 404);
+        }
+
+        return $data;
+    }
+
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;

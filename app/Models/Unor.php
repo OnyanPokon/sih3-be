@@ -42,4 +42,9 @@ class Unor extends Model
     {
         return $this->hasMany(ProdukHukum::class);
     }
+
+    public function berita()
+    {
+        return $this->hasMany(Berita::class);
+    }
 }

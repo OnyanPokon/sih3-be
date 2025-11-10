@@ -11,7 +11,7 @@ class ProdukHukumRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,25 @@ class ProdukHukumRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'required|string',
+            'file' => 'required|mimes:pdf|max:2048',
+            'tahun' => 'required|numeric',
+            'status' => 'sometimes|in:publikasi,draft',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'judul.required' => 'Judul harus diisi',
+            'deskripsi.required' => 'Deskripsi harus diisi',
+            'file.required' => 'File harus diisi',
+            'file.mimes' => 'File harus berformat PDF',
+            'file.max' => 'Ukuran file maksimal 2MB',
+            'tahun.required' => 'Tahun harus diisi',
+            'tahun.numeric' => 'Tahun harus berupa angka',
+            'status.in' => 'Status harus berupa "publikasi" atau "draft"',
         ];
     }
 }

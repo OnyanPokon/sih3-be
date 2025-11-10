@@ -58,7 +58,8 @@ class RolePermissionSeeder extends Seeder
             'perbarui_unor',
             'perbarui_profil',
             'kelola_artikel',
-            'kelola_pemetaan'
+            'kelola_pemetaan',
+            'lihat_kategori'
         ];
 
         foreach ($permissions_admin as $permission) {

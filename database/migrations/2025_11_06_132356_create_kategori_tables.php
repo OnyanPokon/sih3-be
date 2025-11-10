@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama_kategori');
             $table->string('slug');
-            $table->string('logo')->default('default.png');
+            $table->string('logo')->default('default-kategori.png');
             $table->text('deskripsi')->nullable();
             $table->timestamps();
         });

@@ -62,6 +62,17 @@ class ArtikelController extends Controller
         );
     }
 
+    public function detail($slug)
+    {
+        $data = $this->artikelService->detail($slug);
+
+        return $this->successResponseWithData(
+            ArtikelResource::make($data),
+            'Data artikel berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
     public function store(StoreArtikelRequest $request)
     {
         $this->artikelService->store($request);

@@ -27,7 +27,10 @@ class ProdukHukumController extends Controller
     #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
     #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
     #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
-    public function index(Request $request) {
+    #[QueryParameter('status', description: 'The status query.', type: 'string', default: '', example: 'publikasi, draft')]
+    #[QueryParameter('unor_id', description: 'The unor id.', type: 'integer', default: '', example: '1')]
+    public function index(Request $request)
+    {
         $data = $this->produkHukumService->getAll($request);
 
         return $this->successResponseWithDataIndex(
@@ -38,7 +41,35 @@ class ProdukHukumController extends Controller
         );
     }
 
-    public function store(ProdukHukumRequest $request) {
+    #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
+    #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
+    #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
+    #[QueryParameter('unor_id', description: 'The unor id.', type: 'integer', default: '', example: '1')]
+    public function landing(Request $request)
+    {
+        $data = $this->produkHukumService->landing($request);
+
+        return $this->successResponseWithDataIndex(
+            $data,
+            ProdukHukumResource::collection($data),
+            'Data produk hukum berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
+    public function detail($slug)
+    {
+        $data = $this->produkHukumService->detail($slug);
+
+        return $this->successResponseWithData(
+            ProdukHukumResource::make($data),
+            'Data produk hukum berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
+    public function store(ProdukHukumRequest $request)
+    {
         $this->produkHukumService->store($request);
 
         return $this->successResponse(
@@ -47,7 +78,8 @@ class ProdukHukumController extends Controller
         );
     }
 
-    public function show($id) {
+    public function show($id)
+    {
         $data = $this->produkHukumService->show($id);
 
         return $this->successResponseWithData(
@@ -57,7 +89,8 @@ class ProdukHukumController extends Controller
         );
     }
 
-    public function update(ProdukHukumRequest $request, $id) {
+    public function update(ProdukHukumRequest $request, $id)
+    {
         $this->produkHukumService->update($request, $id);
 
         return $this->successResponse(
@@ -66,7 +99,8 @@ class ProdukHukumController extends Controller
         );
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $this->produkHukumService->destroy($id);
 
         return $this->successResponse(
@@ -75,7 +109,8 @@ class ProdukHukumController extends Controller
         );
     }
 
-    public function multiDestroy(Request $request) {
+    public function multiDestroy(Request $request)
+    {
         $this->produkHukumService->multiDestroy($request->ids);
 
         return $this->successResponse(
