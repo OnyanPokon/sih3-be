@@ -8,6 +8,7 @@ use App\Exceptions\ServiceException;
 use App\Traits\FileUpload;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 class BeritaService
@@ -88,10 +89,18 @@ class BeritaService
 
             if ($request->hasFile('thumbnail')) {
                 $thumbnail = $this->uploadPhotoAndConvertToWebp($request->file('thumbnail'), $this->path);
-                $validatedData['thumbnail'] = $thumbnail;
+                $validatedData['thumnbail'] = $thumbnail;
             }
-            $this->model->create($validatedData);
-            return $validatedData;
+            $this->model->create([
+                'judul' => $validatedData['judul'],
+                'slug' => $validatedData['slug'],
+                'konten' => $validatedData['konten'],
+                'thumnbail' => $validatedData['thumnbail'],
+                'status' => $validatedData['status'],
+                'unor_id' => $validatedData['unor_id'],
+                'kategori_id' => $validatedData['kategori_id'],
+                'user_id' => $validatedData['user_id']
+            ]);
         } catch (Exception $e) {
 
             throw $e;
@@ -103,7 +112,7 @@ class BeritaService
         $data = $this->model->find($id);
 
         if (!$data) {
-            throw new NotFoundResourceException('Data tidak ditemukan');
+            throw new NotFoundHttpException('Data tidak ditemukan');
         }
         return $data;
     }
@@ -123,7 +132,16 @@ class BeritaService
                     $this->unlinkPhoto($data->thumbnail);
                 }
             }
-            $data->update($validatedData);
+            $data->update([
+                'judul' => $validatedData['judul'],
+                'slug' => $validatedData['slug'],
+                'konten' => $validatedData['konten'],
+                'thumnbail' => $validatedData['thumbnail'],
+                'unor_id' => $validatedData['unor_id'],
+                'kategori_id' => $validatedData['kategori_id'],
+                'user_id' => $validatedData['user_id'],
+                'status' => $request->status ? $validatedData['status'] : $data->status
+            ]);
 
             return $data;
         } catch (Exception $e) {

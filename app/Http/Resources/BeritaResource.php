@@ -19,6 +19,7 @@ class BeritaResource extends JsonResource
             'judul' => $this->judul,
             'slug' => $this->slug,
             'konten' => $this->konten,
+            'thumbnail' => $this->thumnbail,
             'status' => $this->status,
             'unor_id' => $this->unor,
             'user_id' => $this->user,
