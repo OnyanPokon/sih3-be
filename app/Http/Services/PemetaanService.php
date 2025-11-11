@@ -5,6 +5,7 @@ namespace App\Http\Services;
 use Exception;
 use App\Models\Pemetaan;
 use App\Exceptions\ServiceException;
+use App\Models\Kategori;
 use App\Traits\UploadFileMap;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +67,19 @@ class PemetaanService
         }
 
         return $data->paginate($per_page);
+    }
+
+    public function byKategori($request)
+    {
+        $publishedPemetaan = function ($query) use ($request) {
+            $query->where('status', 'publikasi');
+        };
+
+        $kategori = Kategori::whereHas('pemetaan', $publishedPemetaan)
+            ->with(['pemetaan' => $publishedPemetaan])
+            ->get();
+
+        return $kategori;
     }
 
     public function store($request)

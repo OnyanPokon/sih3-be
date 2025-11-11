@@ -63,6 +63,17 @@ class PemetaanController extends Controller
         );
     }
 
+    public function byKategori(Request $request)
+    {
+        $data = $this->pemetaanService->byKategori($request);
+
+        return $this->successResponseWithData(
+            $data,
+            'Data pemetaan berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
     public function store(StorePemetaanRequest $request)
     {
         $this->pemetaanService->store($request);

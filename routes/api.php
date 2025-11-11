@@ -23,6 +23,7 @@ Route::prefix('landing')->group(function () {
     Route::get('/artikel', [ArtikelController::class, 'landing']);
     Route::get('/artikel/{slug}', [ArtikelController::class, 'detail']);
     Route::get('/pemetaan', [PemetaanController::class, 'landing']);
+    Route::get('/pemetaan/by-kategori', [PemetaanController::class, 'byKategori']);
     Route::get('/produk-hukum', [ProdukHukumController::class, 'landing']);
     Route::get('/produk-hukum/{slug}', [ProdukHukumController::class, 'detail']);
     Route::get('/berita', [BeritaController::class, 'landing']);
