@@ -38,8 +38,10 @@ class BeritaService
         if ($unor_id = $request->query('unor_id')) {
             $data->where('unor_id', $unor_id);
         }
-        if ($kategori_id = $request->query('kategori_id')) {
-            $data->where('kategori_id', $kategori_id);
+        if ($category_slug = $request->query('category_slug')) {
+            $data->whereHas('kategori', function ($query) use ($category_slug) {
+                $query->where('slug', $category_slug);
+            });
         }
 
         return $data->paginate($per_page);

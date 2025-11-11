@@ -35,8 +35,10 @@ class PemetaanService
             $data->where('unor_id', $unor_id);
         }
 
-        if ($kategori = $request->query('kategori')) {
-            $data->where('kategori', $kategori);
+        if ($category_slug = $request->query('category_slug')) {
+            $data->whereHas('kategori', function ($query) use ($category_slug) {
+                $query->where('slug', $category_slug);
+            });
         }
 
         return $data->paginate($per_page);

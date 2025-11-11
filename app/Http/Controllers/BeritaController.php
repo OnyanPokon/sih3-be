@@ -49,7 +49,7 @@ class BeritaController extends Controller
     #[QueryParameter('kategori_id', description: 'The kategori id.', type: 'integer', default: '', example: '1')]
     public function landing(Request $request)
     {
-        $data = $this->beritaService->getAll($request);
+        $data = $this->beritaService->landing($request);
 
         return $this->successResponseWithDataIndex(
             $data,
