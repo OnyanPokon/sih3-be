@@ -61,7 +61,7 @@ class RoleService
             $data = $this->show($id);
             $validatedData['guard_name'] = 'web';
             $role = $data->update($validatedData);
-            $role->syncPermissions($validatedData['permissions']);
+            $data->syncPermissions($validatedData['permissions']);
 
             return $data;
         } catch (Exception $e) {
