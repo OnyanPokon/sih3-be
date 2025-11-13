@@ -68,7 +68,7 @@ class ThumbnailArtikelService
                 $thumbnail = $this->uploadPhotoAndConvertToWebp($request->file('thumbnail'), $this->path);
                 $validatedData['thumbnail'] = $thumbnail;
                 if ($data->thumbnail != 'default.png') {
-                    $this->unlinkPhoto($data->foto);
+                    $this->unlinkPhoto($data->thumbnail);
                 }
             }
             $data->update($validatedData);

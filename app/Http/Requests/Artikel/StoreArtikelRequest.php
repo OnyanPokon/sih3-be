@@ -26,7 +26,10 @@ class StoreArtikelRequest extends FormRequest
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
             'thumbnails' => 'required|array',
-            'thumbnails.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048'
+            'thumbnails.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'dokumen' => 'nullable|array',
+            'dokumen.*' => 'nullable|file|mimes:pdf|max:5024',
+            'kuesioner_tambahan' => 'required|boolean',
         ];
     }
 
@@ -42,6 +45,10 @@ class StoreArtikelRequest extends FormRequest
             'thumbnails.*.image' => 'Thumbnail artikel harus berupa gambar.',
             'thumbnails.*.mimes' => 'Thumbnail artikel harus berformat jpeg, png, jpg, atau webp.',
             'thumbnails.*.max' => 'Thumbnail artikel tidak boleh lebih dari 2MB.',
+            'dokumen.*.file' => 'Dokumen artikel harus berupa file.',
+            'dokumen.*.mimes' => 'Dokumen artikel harus berformat pdf.',
+            'dokumen.*.max' => 'Dokumen artikel tidak boleh lebih dari 5MB.',
+            'kuesioner_tambahan.required' => 'Kuesioner tambahan harus dipilih.',
         ];
     }
 }

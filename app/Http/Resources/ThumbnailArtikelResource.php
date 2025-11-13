@@ -14,6 +14,12 @@ class ThumbnailArtikelResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'artikel_id' => $this->artikel,
+            'thumbnail' => $this->thumbnail,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
+        ];
     }
 }

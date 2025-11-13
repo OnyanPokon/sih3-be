@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BeritaController;
+use App\Http\Controllers\DokumenArtikelController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PemetaanController;
 use App\Http\Controllers\PermissionController;
@@ -28,6 +29,7 @@ Route::prefix('landing')->group(function () {
     Route::get('/produk-hukum/{slug}', [ProdukHukumController::class, 'detail']);
     Route::get('/berita', [BeritaController::class, 'landing']);
     Route::get('/berita/{slug}', [BeritaController::class, 'detail']);
+    Route::get('/artikel/download/{id}', [DokumenArtikelController::class, 'download']);
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -118,5 +120,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/{id}', [ThumbnailArtikelController::class, 'show']);
         Route::put('/{id}', [ThumbnailArtikelController::class, 'update']);
         Route::delete('/{id}', [ThumbnailArtikelController::class, 'destroy']);
+    });
+
+    Route::prefix('dokumen-artikel')->group(function () {
+        Route::get('/', [DokumenArtikelController::class, 'index']);
+        Route::post('/', [DokumenArtikelController::class, 'store']);
+        Route::get('/{id}', [DokumenArtikelController::class, 'show']);
+        Route::put('/{id}', [DokumenArtikelController::class, 'update']);
+        Route::delete('/{id}', [DokumenArtikelController::class, 'destroy']);
     });
 });

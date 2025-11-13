@@ -8,12 +8,14 @@ use App\Exceptions\ServiceException;
 use App\Traits\FileUpload;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ArtikelService
 {
 
     use FileUpload;
-    protected $path = 'thumbnail_artikel';
+    protected $path_thumbnail = 'thumbnail_artikel';
+    protected $path_dokumen = 'dokumen_artikel';
     protected $model;
 
     public function __construct(Artikel $model)
@@ -45,11 +47,15 @@ class ArtikelService
 
     public function detail($slug)
     {
-        $data = $this->model->where('slug', $slug)->where('status', 'publikasi')->first();
+        $data = $this->model->where('slug', $slug)
+            ->where('status', 'publikasi')
+            ->first();
 
         if (!$data) {
-            throw new ServiceException('Artikel tidak ditemukan', 404);
+            throw new NotFoundHttpException('Artikel tidak ditemukan');
         }
+
+        $data->increment('total_kunjungan');
 
         return $data;
     }
@@ -102,10 +108,19 @@ class ArtikelService
             if ($request->hasFile('thumbnails')) {
                 foreach ($request->file('thumbnails') as $file) {
 
-                    $path = $this->uploadPhotoAndConvertToWebp($file, $this->path);
+                    $thumbnail_artikel = $this->uploadPhotoAndConvertToWebp($file, $this->path_thumbnail);
 
                     $artikel->thumbnails()->create([
-                        'thumbnail' => $path
+                        'thumbnail' => $thumbnail_artikel
+                    ]);
+                }
+            }
+
+            if ($request->hasFile('dokumen')) {
+                foreach ($request->file('dokumen') as $file) {
+                    $dokumen_artikel = $this->uploadDocument($file, ['pdf'], $this->path_dokumen);
+                    $artikel->dokumen()->create([
+                        'dokumen' => $dokumen_artikel
                     ]);
                 }
             }

@@ -37,7 +37,6 @@ class RolePermissionSeeder extends Seeder
             'lihat_pemetaan',
             'lihat_berita',
             'perbarui_profil',
-            'kelola_produk_hukum'
         ];
 
         foreach ($permissions_superadmin as $permission) {

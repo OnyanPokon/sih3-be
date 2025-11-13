@@ -29,4 +29,9 @@ class Artikel extends Model
     {
         return $this->hasMany(ThumbnailArtikel::class, 'artikel_id');
     }
+
+    public function dokumen()
+    {
+        return $this->hasMany(DokumenArtikel::class, 'artikel_id');
+    }
 }
