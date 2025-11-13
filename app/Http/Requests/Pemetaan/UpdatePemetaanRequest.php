@@ -27,7 +27,15 @@ class UpdatePemetaanRequest extends FormRequest
             'deskripsi' => 'nullable|string',
             'status' => 'required|in:publikasi,privasi',
             'tipe' => 'required|in:upload,manual',
-            'file' => 'nullable|file|mimes:zip,geojson|max:10240', // max 10MB
+            'file' => [
+                'required_if:tipe,upload|file|max:10240',
+                function ($attribute, $value, $fail) {
+                    $extension = strtolower($value->getClientOriginalExtension());
+                    if (!in_array($extension, ['zip', 'geojson', 'rar'])) {
+                        $fail('File harus berformat geojson, zip, atau rar.');
+                    }
+                },
+            ],
             'koordinat' => 'required_if:tipe,manual|nullable|json',
         ];
     }

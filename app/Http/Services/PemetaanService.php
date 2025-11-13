@@ -154,6 +154,8 @@ class PemetaanService
             $validatedData = $request->validated();
             $pemetaan = $this->show($id);
 
+            $dataToUpdate = $validatedData;
+
             if ($validatedData['tipe'] === 'upload') {
                 if ($request->hasFile('file')) {
                     $newFilePath = $this->handleMapUpload(
