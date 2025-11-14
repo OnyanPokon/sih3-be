@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\DokumenArtikelController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\KuesionerController;
 use App\Http\Controllers\PemetaanController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonilController;
@@ -21,15 +22,26 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::prefix('landing')->group(function () {
-    Route::get('/artikel', [ArtikelController::class, 'landing']);
-    Route::get('/artikel/{slug}', [ArtikelController::class, 'detail']);
-    Route::get('/pemetaan', [PemetaanController::class, 'landing']);
-    Route::get('/pemetaan/by-kategori', [PemetaanController::class, 'byKategori']);
-    Route::get('/produk-hukum', [ProdukHukumController::class, 'landing']);
-    Route::get('/produk-hukum/{slug}', [ProdukHukumController::class, 'detail']);
-    Route::get('/berita', [BeritaController::class, 'landing']);
-    Route::get('/berita/{slug}', [BeritaController::class, 'detail']);
-    Route::get('/artikel/download/{id}', [DokumenArtikelController::class, 'download']);
+    Route::prefix('artikel')->group(function () {
+        Route::get('/', [ArtikelController::class, 'landing']);
+        Route::get('/{slug}', [ArtikelController::class, 'detail']);
+        Route::get('/download/{id}', [DokumenArtikelController::class, 'download']);
+    });
+    Route::prefix('pemetaan')->group(function () {
+        Route::get('/', [PemetaanController::class, 'landing']);
+        Route::get('/by-kategori', [PemetaanController::class, 'byKategori']);
+    });
+    Route::prefix('produk-hukum')->group(function () {
+        Route::get('/produk-hukum', [ProdukHukumController::class, 'landing']);
+        Route::get('/produk-hukum/{slug}', [ProdukHukumController::class, 'detail']);
+    });
+    Route::prefix('berita')->group(function () {
+        Route::get('/berita', [BeritaController::class, 'landing']);
+        Route::get('/berita/{slug}', [BeritaController::class, 'detail']);
+    });
+    Route::prefix('kuesioner')->group(function () {
+        Route::post('/', [KuesionerController::class, 'store']);
+    });
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -128,5 +140,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/{id}', [DokumenArtikelController::class, 'show']);
         Route::put('/{id}', [DokumenArtikelController::class, 'update']);
         Route::delete('/{id}', [DokumenArtikelController::class, 'destroy']);
+    });
+
+    Route::prefix('kuesioner')->group(function () {
+        Route::get('/', [KuesionerController::class, 'index']);
+        Route::get('/export', [KuesionerController::class, 'export']);
+        Route::get('/{id}', [KuesionerController::class, 'show']);
+        Route::delete('/{id}', [KuesionerController::class, 'destroy']);
     });
 });

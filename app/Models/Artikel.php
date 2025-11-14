@@ -34,4 +34,9 @@ class Artikel extends Model
     {
         return $this->hasMany(DokumenArtikel::class, 'artikel_id');
     }
+
+    public function kuesioner()
+    {
+        return $this->hasMany(Kuesioner::class, 'artikel_id');
+    }
 }

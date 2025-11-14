@@ -46,7 +46,7 @@ class BuatModulCommand extends Command
         $resourceNamespace = "App\\Http\\Resources";
         $requestNamespace = "App\\Http\\Requests";
 
-        $migration = $this->call('make:model', ['name' => "{$name}", '-m']);
+        $migration = $this->call('make:model', ['name' => $name, '-m' => true]);
 
         Log::info("Model {$migration} created successfully.");
 
