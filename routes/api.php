@@ -9,6 +9,7 @@ use App\Http\Controllers\KuesionerController;
 use App\Http\Controllers\PemetaanController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonilController;
+use App\Http\Controllers\PosPengamatanController;
 use App\Http\Controllers\ProdukHukumController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ThumbnailArtikelController;
@@ -140,6 +141,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/{id}', [DokumenArtikelController::class, 'show']);
         Route::put('/{id}', [DokumenArtikelController::class, 'update']);
         Route::delete('/{id}', [DokumenArtikelController::class, 'destroy']);
+    });
+
+    Route::prefix('pos-pengamatan')->group(function () {
+        Route::get('/', [PosPengamatanController::class, 'index']);
+        Route::post('/', [PosPengamatanController::class, 'store']);
+        Route::get('/{id}', [PosPengamatanController::class, 'show']);
+        Route::put('/{id}', [PosPengamatanController::class, 'update']);
+        Route::delete('/{id}', [PosPengamatanController::class, 'destroy']);
     });
 
     Route::prefix('kuesioner')->group(function () {
