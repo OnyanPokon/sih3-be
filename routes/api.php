@@ -30,6 +30,8 @@ Route::prefix('landing')->group(function () {
     });
     Route::prefix('pemetaan')->group(function () {
         Route::get('/', [PemetaanController::class, 'landing']);
+        Route::get('/{id}/geojson', [PemetaanController::class, 'showGeoJson'])
+            ->name('pemetaan.geojson');
         Route::get('/by-kategori', [PemetaanController::class, 'byKategori']);
     });
     Route::prefix('produk-hukum')->group(function () {
@@ -95,8 +97,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::prefix('pemetaan')->group(function () {
         Route::get('/', [PemetaanController::class, 'index']);
-        Route::get('/{id}/geojson', [PemetaanController::class, 'showGeoJson'])
-            ->name('pemetaan.geojson');
         Route::post('/', [PemetaanController::class, 'store']);
         Route::get('/{id}', [PemetaanController::class, 'show']);
         Route::put('/{id}', [PemetaanController::class, 'update']);
