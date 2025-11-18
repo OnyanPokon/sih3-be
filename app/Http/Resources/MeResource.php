@@ -19,7 +19,7 @@ class MeResource extends JsonResource
             'username' => $this->username,
             'email' => $this->email,
             'role' => $this->getRoleNames()[0],
-            'unor' => $this->personil->unor->only('nama', 'wilayah'),
+            'unor' => $this->personil->unor->only('id', 'nama', 'wilayah'),
             'permissions' => $this->getPermissionsViaRoles()->pluck('name'),
         ];
     }

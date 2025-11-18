@@ -77,6 +77,13 @@ class BeritaService
             $data->where('kategori_id', $kategori_id);
         }
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('admin')) {
+            $data->where('unor_id', $user->personil->unor->id);
+        }
+
         return $data->paginate($per_page);
     }
 
@@ -138,7 +145,7 @@ class BeritaService
                 'judul' => $validatedData['judul'],
                 'slug' => $validatedData['slug'],
                 'konten' => $validatedData['konten'],
-                'thumnbail' => $validatedData['thumbnail'],
+                'thumnbail' => $validatedData['thumbnail'] ?? $data->thumnbail,
                 'unor_id' => $validatedData['unor_id'],
                 'kategori_id' => $validatedData['kategori_id'],
                 'user_id' => $validatedData['user_id'],

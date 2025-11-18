@@ -39,6 +39,17 @@ class UnorController extends Controller
         );
     }
 
+    public function landing(Request $request)
+    {
+        $data = $this->unorService->landing($request);
+
+        return $this->successResponseWithData(
+            UnorResource::collection($data),
+            'Data unor berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
     public function store(UnorRequest $request)
     {
         $this->unorService->store($request);

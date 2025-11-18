@@ -33,6 +33,13 @@ class KuesionerService
             $data->where('artikel_id', $artikel_id);
         }
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('admin')) {
+            $data->where('unor_id', $user->personil->unor->id);
+        }
+
         if ($unor_id = $request->query('unor_id')) {
             $data->whereHas('artikel', function ($query) use ($unor_id) {
                 $query->where('unor_id', $unor_id);

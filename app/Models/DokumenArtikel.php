@@ -10,6 +10,7 @@ class DokumenArtikel extends Model
 
     protected $fillable = [
         'artikel_id',
+        'nama_dokumen',
         'dokumen',
     ];
 

@@ -74,6 +74,16 @@ class PersonilController extends Controller
         );
     }
 
+    public function resetPassword(Request $request, $id)
+    {
+        $this->personilService->resetPassword($request, $id);
+
+        return $this->successResponse(
+            'Berhasil mereset password personil',
+            Response::HTTP_OK
+        );
+    }
+
     public function updateProfil(UpdateProfilPersonilRequest $request, $id)
     {
         $this->personilService->updateProfil($request, $id);

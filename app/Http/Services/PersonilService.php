@@ -7,6 +7,7 @@ use App\Models\Personil;
 use App\Exceptions\ServiceException;
 use App\Models\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -37,6 +38,13 @@ class PersonilService
 
         if ($unor_id = $request->query('unor_id')) {
             $data->where('unor_id', $unor_id);
+        }
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('admin')) {
+            $data->where('unor_id', $user->personil->unor->id);
         }
 
         return $data->paginate($per_page);
@@ -80,6 +88,21 @@ class PersonilService
             throw new NotFoundHttpException('Data tidak ditemukan');
         }
         return $data;
+    }
+
+    public function resetPassword($id)
+    {
+        DB::beginTransaction();
+        try {
+            $personil = $this->show($id);
+            $user = $personil->user;
+            $user->password = bcrypt($personil->nip ?? '12345678');
+            $user->save();
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     public function update($request, $id)

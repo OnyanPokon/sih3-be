@@ -23,6 +23,7 @@ class DokumenArtikelRequest extends FormRequest
     {
         return [
             'artikel_id' => 'required|exists:artikel,id',
+            'nama_dokumen' => 'sometimes|string|max:255',
             'dokumen' => 'required|file|mimes:pdf|max:5024'
         ];
     }

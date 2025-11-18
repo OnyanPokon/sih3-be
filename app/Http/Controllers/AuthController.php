@@ -54,8 +54,7 @@ class AuthController extends Controller
     {
         $data = $this->authService->gantiPassword($request);
         $this->authService->logout($request);
-        return $this->successResponseWithData(
-            $data,
+        return $this->successResponse(
             "Berhasil mengganti password",
             Response::HTTP_OK
         );

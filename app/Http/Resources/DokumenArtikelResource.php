@@ -17,6 +17,7 @@ class DokumenArtikelResource extends JsonResource
         return [
             'id' => $this->id,
             'artikel_id' => $this->artikel,
+            'nama_dokumen' => $this->nama_dokumen,
             'dokumen' => $this->dokumen,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at

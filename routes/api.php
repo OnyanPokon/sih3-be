@@ -6,6 +6,7 @@ use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\DokumenArtikelController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\KuesionerController;
+use App\Http\Controllers\LupaPasswordController;
 use App\Http\Controllers\PemetaanController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonilController;
@@ -22,7 +23,16 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+Route::prefix("lupa-password")->controller(LupaPasswordController::class)->group(function () {
+    Route::post("kirim-email", "sendEmail")->name('lupa-password.send-email');
+    Route::post("ganti-password", "changePassword")->name('lupa-password.ganti-password');
+});
+
 Route::prefix('landing')->group(function () {
+    Route::prefix('unor')->group(function () {
+        Route::get('/', [UnorController::class, 'landing']);
+    });
+
     Route::prefix('artikel')->group(function () {
         Route::get('/', [ArtikelController::class, 'landing']);
         Route::get('/{slug}', [ArtikelController::class, 'detail']);
@@ -39,8 +49,8 @@ Route::prefix('landing')->group(function () {
         Route::get('/produk-hukum/{slug}', [ProdukHukumController::class, 'detail']);
     });
     Route::prefix('berita')->group(function () {
-        Route::get('/berita', [BeritaController::class, 'landing']);
-        Route::get('/berita/{slug}', [BeritaController::class, 'detail']);
+        Route::get('/', [BeritaController::class, 'landing']);
+        Route::get('/{slug}', [BeritaController::class, 'detail']);
     });
     Route::prefix('kuesioner')->group(function () {
         Route::post('/', [KuesionerController::class, 'store']);
@@ -51,6 +61,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::prefix('auth')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/ganti-password', [AuthController::class, 'gantiPassword']);
     });
 
     Route::prefix('role')->group(function () {
@@ -74,6 +85,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/', [PersonilController::class, 'store']);
         Route::get('/{id}', [PersonilController::class, 'show']);
         Route::put('/{id}', [PersonilController::class, 'update']);
+        Route::put('/reset-password/{id}', [PersonilController::class, 'resetPassword']);
         Route::put('/update-profil/{id}', [PersonilController::class, 'updateProfil']);
         Route::delete('/{id}', [PersonilController::class, 'destroy']);
     });

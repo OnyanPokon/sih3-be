@@ -24,4 +24,9 @@ class PosPengamatan extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function detail_pengamatan()
+    {
+        return $this->hasMany(DetailPengamatan::class, 'pos_pengamatan_id');
+    }
 }

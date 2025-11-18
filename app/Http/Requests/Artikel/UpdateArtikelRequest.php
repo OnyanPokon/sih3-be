@@ -27,7 +27,7 @@ class UpdateArtikelRequest extends FormRequest
             'konten' => 'sometimes|string',
             'status' => 'sometimes|in:publikasi,draft',
             'tanggal_publikasi' => 'sometimes|date',
-            'kuesioner_tambahan' => 'required|boolean',
+            'kuesioner_tambahan' => 'sometimes|boolean',
         ];
     }
 
@@ -40,7 +40,7 @@ class UpdateArtikelRequest extends FormRequest
             'tanggal_publikasi.required' => 'Tanggal publikasi artikel harus diisi.',
             'tanggal_publikasi.date' => 'Tanggal publikasi artikel harus berupa tanggal.',
             'kuesioner_tambahan.required' => 'Kuesioner tambahan harus dipilih.',
-            
+
         ];
     }
 }

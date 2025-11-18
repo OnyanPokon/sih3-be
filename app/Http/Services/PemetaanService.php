@@ -62,6 +62,13 @@ class PemetaanService
             $data->where('kategori_id', $kategori_id);
         }
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('admin')) {
+            $data->where('unor_id', $user->personil->unor->id);
+        }
+
         if ($status = $request->query('status')) {
             $data->where('status', $status);
         }

@@ -32,6 +32,13 @@ class UnorService
         return $data->paginate($per_page);
     }
 
+    public function landing()
+    {
+        $data = $this->model->latest();
+
+        return $data->get();
+    }
+
     public function store($request)
     {
         try {

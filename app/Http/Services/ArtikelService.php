@@ -81,6 +81,13 @@ class ArtikelService
             $data->where('kategori', $kategori);
         }
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('admin')) {
+            $data->where('unor_id', $user->personil->unor->id);
+        }
+
         return $data->paginate($per_page);
     }
 
@@ -99,6 +106,7 @@ class ArtikelService
                 'slug' => $validatedData['slug'],
                 'konten' => $validatedData['konten'],
                 'status' => $validatedData['status'],
+                'kuesioner_tambahan' => $validatedData['kuesioner_tambahan'] ?? true,
                 'tanggal_publikasi' => $validatedData['tanggal_publikasi'],
                 'kategori_id' => $validatedData['kategori_id'],
                 'unor_id' => $validatedData['unor_id'],
@@ -107,7 +115,6 @@ class ArtikelService
 
             if ($request->hasFile('thumbnails')) {
                 foreach ($request->file('thumbnails') as $file) {
-
                     $thumbnail_artikel = $this->uploadPhotoAndConvertToWebp($file, $this->path_thumbnail);
 
                     $artikel->thumbnails()->create([
@@ -120,6 +127,7 @@ class ArtikelService
                 foreach ($request->file('dokumen') as $file) {
                     $dokumen_artikel = $this->uploadDocument($file, ['pdf'], $this->path_dokumen);
                     $artikel->dokumen()->create([
+                        'nama_dokumen' => $file->getClientOriginalName(),
                         'dokumen' => $dokumen_artikel
                     ]);
                 }
