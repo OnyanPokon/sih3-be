@@ -6,27 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class PosPengamatan extends Model
 {
+    protected $table = 'detail_pengamatan';
+
     protected $guarded = [];
 
-    protected $table = 'pos_pengamatan';
-
-    public function kategori()
+    public function jenis_pos()
     {
-        return $this->belongsTo(Kategori::class, 'kategori_id');
-    }
-
-    public function unor()
-    {
-        return $this->belongsTo(Unor::class, 'unor_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function detail_pengamatan()
-    {
-        return $this->hasMany(DetailPengamatan::class, 'pos_pengamatan_id');
+        return $this->belongsTo(JenisPos::class);
     }
 }

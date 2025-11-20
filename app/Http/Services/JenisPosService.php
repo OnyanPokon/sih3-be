@@ -3,17 +3,17 @@
 namespace App\Http\Services;
 
 use Exception;
-use App\Models\DetailPengamatan;
-use App\Exceptions\ServiceException;
+use App\Models\JenisPos;
+use App\Traits\FileUpload;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class DetailPengamatanService
+class JenisPosService
 {
-
     protected $model;
 
-    public function __construct(DetailPengamatan $model)
+    public function __construct(JenisPos $model)
     {
         $this->model = $model;
     }
@@ -24,11 +24,19 @@ class DetailPengamatanService
         $data = $this->model->latest();
 
         if ($search = $request->query('search')) {
-            $data->where('nama', 'like', '%' . $search . '%');
+            $data->where('nama_pos', 'like', '%' . $search . '%')->orWhere('kewenangan', 'like', '%' . $search . '%');
         }
 
-        if ($pos_pengamatan_id = $request->query('pos_pengamatan_id')) {
-            $data->where('pos_pengamatan_id', $pos_pengamatan_id);
+        if ($status = $request->query('status')) {
+            $data->where('status', $status);
+        }
+
+        if ($unor_id = $request->query('unor_id')) {
+            $data->where('unor_id', $unor_id);
+        }
+
+        if ($kategori_id = $request->query('kategori_id')) {
+            $data->where('kategori_id', $kategori_id);
         }
 
         return $data->paginate($per_page);
@@ -38,20 +46,13 @@ class DetailPengamatanService
     {
         try {
             $validatedData = $request->validated();
+
+            $validatedData['unor_id'] = Auth::user()->personil->unor->id;
+            $validatedData['user_id'] = Auth::user()->id;
+            $validatedData['slug'] = str()->slug($validatedData['nama_pos']);
+
             $this->model->create($validatedData);
             return $validatedData;
-        } catch (Exception $e) {
-
-            throw $e;
-        }
-    }
-
-    public function import($request)
-    {
-        try {
-            $validatedData = $request->validated();
-           
-            
         } catch (Exception $e) {
 
             throw $e;
@@ -72,7 +73,12 @@ class DetailPengamatanService
     {
         try {
             $validatedData = $request->validated();
+            $validatedData['unor_id'] = Auth::user()->personil->unor->id;
+            $validatedData['user_id'] = Auth::user()->id;
+            $validatedData['slug'] = str()->slug($validatedData['nama']);
+
             $data = $this->show($id);
+
             $data->update($validatedData);
 
             return $data;

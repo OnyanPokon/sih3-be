@@ -10,6 +10,7 @@ use App\Traits\UploadFileMap;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class PemetaanService
 {
@@ -98,6 +99,9 @@ class PemetaanService
             $validatedData['user_id'] = Auth::user()->id;
 
             if ($validatedData['tipe'] === 'upload') {
+                if (!$request->hasFile('file')) {
+                    throw new ConflictHttpException('File pemetaan harus diisi.');
+                }
                 $filePath = $this->handleMapUpload(
                     $request->file('file'),
                     'pemetaan'
@@ -108,8 +112,6 @@ class PemetaanService
             } else {
                 $validatedData['file'] = null;
             }
-
-            // dd($request->file('file')->getClientOriginalName());
 
             $this->model->create($validatedData);
 
@@ -132,10 +134,16 @@ class PemetaanService
     public function showGeoJson($id)
     {
         $pemetaan = $this->show($id);
+        $headers = [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Post-Check'    => '0',
+            'Pre-Check'     => '0',
+            'Pragma'        => 'no-cache',
+            'Expires'       => 'Sat, 01 Jan 2000 00:00:00 GMT', // Tanggal di masa lalu
+            'Access-Control-Allow-Origin' => '*',
+        ];
         if ($pemetaan->tipe === 'manual' && !empty($pemetaan->koordinat)) {
-            return response()->json($pemetaan->koordinat, 200, [
-                'Access-Control-Allow-Origin' => '*',
-            ]);
+            return response()->json($pemetaan->koordinat, 200, $headers);
         }
 
         if ($pemetaan->tipe === 'upload' && !empty($pemetaan->file)) {
@@ -146,10 +154,9 @@ class PemetaanService
                 return response()->json(['error' => 'File not found on disk'], 404);
             }
             $path = Storage::disk('public')->path($filename);
-            return response()->file($path, [
-                'Content-Type' => 'application/geo+json',
-                'Access-Control-Allow-Origin' => '*',
-            ]);
+
+            $headers['Content-Type'] = 'application/geo+json';
+            return response()->file($path, $headers);
         }
 
         return response()->json(['error' => 'No map data found for this entry'], 404);

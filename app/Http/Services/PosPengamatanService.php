@@ -4,17 +4,11 @@ namespace App\Http\Services;
 
 use Exception;
 use App\Models\PosPengamatan;
-use App\Exceptions\ServiceException;
-use App\Traits\FileUpload;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PosPengamatanService
 {
-    use FileUpload;
-
-    protected $path = 'pos_pengamatan';
 
     protected $model;
 
@@ -29,19 +23,11 @@ class PosPengamatanService
         $data = $this->model->latest();
 
         if ($search = $request->query('search')) {
-            $data->where('nama_pos', 'like', '%' . $search . '%')->orWhere('kewenangan', 'like', '%' . $search . '%');
+            $data->where('nama', 'like', '%' . $search . '%');
         }
 
-        if ($status = $request->query('status')) {
-            $data->where('status', $status);
-        }
-
-        if ($unor_id = $request->query('unor_id')) {
-            $data->where('unor_id', $unor_id);
-        }
-
-        if ($kategori_id = $request->query('kategori_id')) {
-            $data->where('kategori_id', $kategori_id);
+        if ($pos_pengamatan_id = $request->query('pos_pengamatan_id')) {
+            $data->where('pos_pengamatan_id', $pos_pengamatan_id);
         }
 
         return $data->paginate($per_page);
@@ -51,17 +37,18 @@ class PosPengamatanService
     {
         try {
             $validatedData = $request->validated();
-
-            $validatedData['unor_id'] = Auth::user()->personil->unor->id;
-            $validatedData['user_id'] = Auth::user()->id;
-            $validatedData['slug'] = str()->slug($validatedData['nama_pos']);
-
-            if ($request->hasFile('thumbnail')) {
-                $validatedData['thumbnail'] = $this->uploadPhotoAndConvertToWebP($request->file('thumbnail'), $this->path);
-            }
-
             $this->model->create($validatedData);
             return $validatedData;
+        } catch (Exception $e) {
+
+            throw $e;
+        }
+    }
+
+    public function import($request)
+    {
+        try {
+            $validatedData = $request->validated();
         } catch (Exception $e) {
 
             throw $e;
@@ -82,17 +69,7 @@ class PosPengamatanService
     {
         try {
             $validatedData = $request->validated();
-            $validatedData['unor_id'] = Auth::user()->personil->unor->id;
-            $validatedData['user_id'] = Auth::user()->id;
-            $validatedData['slug'] = str()->slug($validatedData['nama_pos']);
-
             $data = $this->show($id);
-            if ($request->hasFile('thumbnail')) {
-                $validatedData['thumbnail'] = $this->uploadPhotoAndConvertToWebP($request->file('thumbnail'), $this->path);
-                if ($data->thumbnail != 'default.png') {
-                    $this->unlinkPhoto($data->thumbnail);
-                }
-            }
             $data->update($validatedData);
 
             return $data;

@@ -22,24 +22,25 @@ class PosPengamatanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'kategori_id' => 'required|exists:kategori,id',
-            'nama_pos' => 'required|string|max:255',
-            'kewenangan' => 'required|string|max:255',
-            'thumbnail' => 'nullable|mimes:jpg,png,jpeg|max:2048',
-            'status' => 'sometimes|in:publikasi,draft',
+            'jenis_pos_id' => 'required|exists:jenis_pos,id',
+            'nama' => 'required|string|max:255',
+            'koordinat' => 'required|string',
+            'alamat' => 'required|string',
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
-            'kategori_id.required' => 'Kategori harus dipilih',
-            'kategori_id.exists' => 'Kategori tidak ditemukan',
-            'nama_pos.required' => 'Nama pos harus diisi',
-            'kewenangan.required' => 'Kewenangan harus diisi',
-            'thumbnail.mimes' => 'Thumbnail harus berupa file gambar',
-            'thumbnail.max' => 'Thumbnail tidak boleh lebih dari 2MB',
-            'status.in' => 'Status harus publikasi atau draft',
+            'jenis_pos_id.required' => 'ID jenis pos harus diisi.',
+            'jenis_pos_id.exists' => 'ID jenis pos tidak valid.',
+            'nama.required' => 'Nama harus diisi.',
+            'nama.string' => 'Nama harus berupa string.',
+            'nama.max' => 'Nama maksimal 255 karakter.',
+            'koordinat.required' => 'Koordinat harus diisi.',
+            'koordinat.string' => 'Koordinat harus berupa string.',
+            'alamat.required' => 'Alamat harus diisi.',
+            'alamat.string' => 'Alamat harus berupa string.',
         ];
     }
 }

@@ -36,6 +36,7 @@ class UpdatePemetaanRequest extends FormRequest
                     }
                 },
             ],
+            'marker' => 'required_if:jenis,point|string',
             'koordinat' => 'required_if:tipe,manual|nullable|json',
         ];
     }
@@ -48,6 +49,8 @@ class UpdatePemetaanRequest extends FormRequest
             'file.mimes' => 'File harus berformat geojson, zip, atau rar.',
             'status.in' => 'Status pemetaan harus salah satu dari publikasi atau privasi.',
             'tipe.in' => 'Tipe pemetaan harus salah satu dari upload atau manual.',
+            'marker.required_if' => 'Marker pemetaan harus diisi jika jenis pemetaan adalah point.',
+            'marker.string' => 'Marker pemetaan harus berupa string.',
         ];
     }
 }

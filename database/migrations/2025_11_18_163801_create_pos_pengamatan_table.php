@@ -13,14 +13,10 @@ return new class extends Migration
     {
         Schema::create('pos_pengamatan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('unor_id')->constrained('unor')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('kategori_id')->constrained('kategori')->onDelete('cascade');
-            $table->string('nama_pos');
-            $table->string('slug');
-            $table->text('kewenangan');
-            $table->string('thumbnail')->default('default.png');
-            $table->enum('status', ['publikasi', 'draft'])->default('publikasi');
+            $table->foreignId('jenis_pos_id')->constrained('jenis_pos')->onDelete('cascade');
+            $table->string('nama');
+            $table->string('koordinat');
+            $table->string('alamat');
             $table->timestamps();
         });
     }

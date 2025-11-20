@@ -37,6 +37,7 @@ class StorePemetaanRequest extends FormRequest
                 },
             ],
             'koordinat' => 'required_if:tipe,manual|nullable|array',
+            'marker' => 'required_if:jenis,point|string',
             'status' => 'required|in:publikasi,privasi',
         ];
     }
@@ -56,6 +57,8 @@ class StorePemetaanRequest extends FormRequest
             'nama_pemetaan.required' => 'Nama pemetaan harus diisi.',
             'status.required' => 'Status pemetaan harus dipilih.',
             'status.in' => 'Status pemetaan harus salah satu dari publikasi atau privasi.',
+            'marker.required_if' => 'Marker pemetaan harus diisi jika jenis pemetaan adalah point.',
+            'marker.string' => 'Marker pemetaan harus berupa string.',
         ];
     }
 }

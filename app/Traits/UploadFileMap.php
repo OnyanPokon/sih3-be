@@ -24,18 +24,13 @@ trait UploadFileMap
      */
     public function handleMapUpload(UploadedFile $file, string $storageFolder = 'pemetaan'): string
     {
-        // 1. Dapatkan ekstensi file
         $extension = strtolower($file->getClientOriginalExtension());
 
-        // 2. Routing logika berdasarkan ekstensi
         if ($extension === 'zip') {
-            // Jika .zip, jalankan alur konversi SHP
             return $this->convertZipToGeoJson($file, $storageFolder);
         } elseif ($extension === 'geojson') {
-            // Jika .geojson, jalankan alur simpan langsung
             return $this->saveGeoJsonFile($file, $storageFolder);
         } else {
-            // Sebenarnya ini sudah ditangani Form Request, tapi sebagai pengaman
             throw new InvalidShapefileException('Format file tidak didukung. Harap unggah .zip atau .geojson.');
         }
     }

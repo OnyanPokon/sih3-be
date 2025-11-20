@@ -21,6 +21,7 @@ class PemetaanResource extends JsonResource
             'tipe' => $this->tipe,
             'jenis' => $this->jenis,
             'file' => $this->file,
+            'marker' => $this->marker,
             'koordinat' => $this->koordinat,
             'status' => $this->status,
             'kategori_id' => $this->kategori,
