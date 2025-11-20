@@ -36,9 +36,6 @@ class KuesionerService
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user->hasRole('admin')) {
-            $data->where('unor_id', $user->personil->unor->id);
-        }
 
         if ($unor_id = $request->query('unor_id')) {
             $data->whereHas('artikel', function ($query) use ($unor_id) {
@@ -49,11 +46,14 @@ class KuesionerService
         return $data->paginate($per_page);
     }
 
-    public function export()
+    public function export($request)
     {
         try {
             $unor = Auth::user()->personil->unor;
-            return Excel::download(new KuesionerExport($unor->id), 'kuesioner-' . $unor->nama . '.xlsx');
+            $artikel_id = $request->query('artikel_id');
+            $fields = ['id', 'artikel.judul', 'nama', 'deskripsi', 'instansi', 'asal', 'nilai', 'created_at'];
+            $headings = ['ID', 'Artikel', 'Nama User', 'Deskripsi', 'Instansi', 'Asal', 'Nilai', 'Dibuat pada'];
+            return Excel::download(new KuesionerExport($artikel_id, $fields, $headings), 'kuesioner-' . $unor->nama . '.xlsx');
         } catch (Exception $e) {
             throw $e;
         }

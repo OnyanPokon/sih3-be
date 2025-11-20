@@ -29,6 +29,7 @@ class KuesionerController extends Controller
     #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
     #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
     #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
+    #[QueryParameter('artikel_id', description: 'artikel_id', type: 'number', default: '', example: '1')]
     public function index(Request $request)
     {
         $data = $this->kuesionerService->getAll($request);
@@ -41,10 +42,11 @@ class KuesionerController extends Controller
         );
     }
 
+    #[QueryParameter('artikel_id', description: 'artikel_id', type: 'number', default: '', example: '1')]
     public function export(Request $request)
     {
         try {
-            return $this->kuesionerService->export();
+            return $this->kuesionerService->export($request);
         } catch (Exception $e) {
             return $this->errorResponse(
                 $e->getMessage(),
