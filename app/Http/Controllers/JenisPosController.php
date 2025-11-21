@@ -30,6 +30,23 @@ class JenisPosController extends Controller
     #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
     #[QueryParameter('unor_id', description: 'The unor id.', type: 'integer', default: '', example: '1')]
     #[QueryParameter('kategori_id', description: 'The kategori id.', type: 'integer', default: '', example: '1')]
+    public function landing(Request $request)
+    {
+        $data = $this->jenisPosService->landing($request);
+
+        return $this->successResponseWithDataIndex(
+            $data,
+            JenisPosResource::collection($data),
+            'Data jenis pos berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
+    #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
+    #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
+    #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
+    #[QueryParameter('unor_id', description: 'The unor id.', type: 'integer', default: '', example: '1')]
+    #[QueryParameter('kategori_id', description: 'The kategori id.', type: 'integer', default: '', example: '1')]
     public function index(Request $request)
     {
         $data = $this->jenisPosService->getAll($request);
@@ -37,7 +54,7 @@ class JenisPosController extends Controller
         return $this->successResponseWithDataIndex(
             $data,
             JenisPosResource::collection($data),
-            'Data pos pengamatan berhasil diambil',
+            'Data jenis pos berhasil diambil',
             Response::HTTP_OK
         );
     }
@@ -47,7 +64,7 @@ class JenisPosController extends Controller
         $this->jenisPosService->store($request);
 
         return $this->successResponse(
-            'Berhasil menambah data pos pengamatan',
+            'Berhasil menambah data jenis pos',
             Response::HTTP_CREATED
         );
     }
@@ -58,7 +75,7 @@ class JenisPosController extends Controller
 
         return $this->successResponseWithData(
             JenisPosResource::make($data),
-            'Data pos pengamatan berhasil diambil',
+            'Data jenis pos berhasil diambil',
             Response::HTTP_OK
         );
     }
@@ -68,7 +85,7 @@ class JenisPosController extends Controller
         $this->jenisPosService->update($request, $id);
 
         return $this->successResponse(
-            'Berhasil mengubah data pos pengamatan',
+            'Berhasil mengubah data jenis pos',
             Response::HTTP_OK
         );
     }
@@ -78,7 +95,7 @@ class JenisPosController extends Controller
         $this->jenisPosService->destroy($id);
 
         return $this->successResponse(
-            'Berhasil menghapus data pos pengamatan',
+            'Berhasil menghapus data jenis pos',
             Response::HTTP_OK
         );
     }
@@ -88,7 +105,7 @@ class JenisPosController extends Controller
         $this->jenisPosService->multiDestroy($request->ids);
 
         return $this->successResponse(
-            'Berhasil menghapus data pos pengamatan',
+            'Berhasil menghapus data jenis pos',
             Response::HTTP_OK
         );
     }

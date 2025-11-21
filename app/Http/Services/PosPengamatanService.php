@@ -2,9 +2,12 @@
 
 namespace App\Http\Services;
 
+use App\Imports\PosPengamatanImport;
+use App\Models\Kategori;
 use Exception;
 use App\Models\PosPengamatan;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PosPengamatanService
@@ -17,6 +20,22 @@ class PosPengamatanService
         $this->model = $model;
     }
 
+    public function landing($request)
+    {
+        $per_page = $request->per_page ?? 10;
+        $data = $this->model->latest();
+
+        if ($search = $request->query('search')) {
+            $data->where('nama', 'like', '%' . $search . '%');
+        }
+
+        if ($jenis_pos_id = $request->query('jenis_pos_id')) {
+            $data->where('jenis_pos_id', $jenis_pos_id);
+        }
+
+        return $data->paginate($per_page);
+    }
+
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
@@ -26,8 +45,8 @@ class PosPengamatanService
             $data->where('nama', 'like', '%' . $search . '%');
         }
 
-        if ($pos_pengamatan_id = $request->query('pos_pengamatan_id')) {
-            $data->where('pos_pengamatan_id', $pos_pengamatan_id);
+        if ($jenis_pos_id = $request->query('jenis_pos_id')) {
+            $data->where('jenis_pos_id', $jenis_pos_id);
         }
 
         return $data->paginate($per_page);
@@ -49,8 +68,32 @@ class PosPengamatanService
     {
         try {
             $validatedData = $request->validated();
-        } catch (Exception $e) {
+            $file = $validatedData['file'];
 
+            $collection = Excel::toCollection(null, $file)->first();
+
+            if ($collection->isEmpty()) {
+                throw new Exception('File Excel kosong atau tidak memiliki data.');
+            }
+            $nama_kategori_mentah = $collection->get(0)->get(0) ?? null;
+
+            if (empty($nama_kategori_mentah)) {
+                throw new Exception('Nama Kategori pada Baris 1 Excel tidak boleh kosong.');
+            }
+
+            $nama_kategori_normalisasi = strtolower(trim($nama_kategori_mentah));
+
+            $kategori = Kategori::where(DB::raw('LOWER(nama_kategori)'), $nama_kategori_normalisasi)->first();
+
+            if (!$kategori) {
+                throw new Exception("Kategori '{$nama_kategori_mentah}' tidak ditemukan dalam database.");
+            }
+            $kategori_id = $kategori->id;
+
+            Excel::import(new PosPengamatanImport($kategori_id), $file);
+
+            return true;
+        } catch (Exception $e) {
             throw $e;
         }
     }

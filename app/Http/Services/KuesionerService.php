@@ -56,6 +56,7 @@ class KuesionerService
             return Excel::download(new KuesionerExport($artikel_id, $fields, $headings), 'kuesioner-' . $unor->nama . '.xlsx');
         } catch (Exception $e) {
             throw $e;
+            
         }
     }
 

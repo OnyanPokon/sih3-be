@@ -18,6 +18,30 @@ class JenisPosService
         $this->model = $model;
     }
 
+    public function landing($request)
+    {
+        $per_page = $request->per_page ?? 10;
+        $data = $this->model->latest();
+
+        if ($search = $request->query('search')) {
+            $data->where('nama_pos', 'like', '%' . $search . '%')->orWhere('kewenangan', 'like', '%' . $search . '%');
+        }
+
+        if ($status = $request->query('status')) {
+            $data->where('status', $status);
+        }
+
+        if ($unor_id = $request->query('unor_id')) {
+            $data->where('unor_id', $unor_id);
+        }
+
+        if ($kategori_id = $request->query('kategori_id')) {
+            $data->where('kategori_id', $kategori_id);
+        }
+
+        return $data->paginate($per_page);
+    }
+
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
@@ -49,7 +73,7 @@ class JenisPosService
 
             $validatedData['unor_id'] = Auth::user()->personil->unor->id;
             $validatedData['user_id'] = Auth::user()->id;
-            $validatedData['slug'] = str()->slug($validatedData['nama_pos']);
+            $validatedData['slug'] = str()->slug($validatedData['nama']);
 
             $this->model->create($validatedData);
             return $validatedData;

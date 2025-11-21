@@ -4,7 +4,9 @@ use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\DokumenArtikelController;
+use App\Http\Controllers\JenisPosController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\KoordinatTelemetriController;
 use App\Http\Controllers\KuesionerController;
 use App\Http\Controllers\LupaPasswordController;
 use App\Http\Controllers\PemetaanController;
@@ -31,6 +33,18 @@ Route::prefix("lupa-password")->controller(LupaPasswordController::class)->group
 Route::prefix('landing')->group(function () {
     Route::prefix('unor')->group(function () {
         Route::get('/', [UnorController::class, 'landing']);
+    });
+
+    Route::prefix('jenis-pos')->group(function () {
+        Route::get('/', [JenisPosController::class, 'landing']);
+    });
+
+    Route::prefix('pos-pengamatan')->group(function () {
+        Route::get('/', [PosPengamatanController::class, 'landing']);
+    });
+
+    Route::prefix('koordinat-telemetri')->group(function () {
+        Route::get('/', [KoordinatTelemetriController::class, 'landing']);
     });
 
     Route::prefix('artikel')->group(function () {
@@ -158,9 +172,27 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::prefix('pos-pengamatan')->group(function () {
         Route::get('/', [PosPengamatanController::class, 'index']);
         Route::post('/', [PosPengamatanController::class, 'store']);
+        Route::post('/import', [PosPengamatanController::class, 'import']);
         Route::get('/{id}', [PosPengamatanController::class, 'show']);
         Route::put('/{id}', [PosPengamatanController::class, 'update']);
         Route::delete('/{id}', [PosPengamatanController::class, 'destroy']);
+    });
+
+    Route::prefix('koordinat-telemetri')->group(function () {
+        Route::get('/', [KoordinatTelemetriController::class, 'index']);
+        Route::post('/', [KoordinatTelemetriController::class, 'store']);
+        Route::post('/import', [KoordinatTelemetriController::class, 'import']);
+        Route::get('/{id}', [KoordinatTelemetriController::class, 'show']);
+        Route::put('/{id}', [KoordinatTelemetriController::class, 'update']);
+        Route::delete('/{id}', [KoordinatTelemetriController::class, 'destroy']);
+    });
+
+    Route::prefix('jenis-pos')->group(function () {
+        Route::get('/', [JenisPosController::class, 'index']);
+        Route::post('/', [JenisPosController::class, 'store']);
+        Route::get('/{id}', [JenisPosController::class, 'show']);
+        Route::put('/{id}', [JenisPosController::class, 'update']);
+        Route::delete('/{id}', [JenisPosController::class, 'destroy']);
     });
 
     Route::prefix('kuesioner')->group(function () {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PosPengamatanImportRequest;
 use App\Http\Requests\PosPengamatanRequest;
 use App\Http\Resources\PosPengamatanResource;
 use Illuminate\Http\Request;
@@ -27,6 +28,7 @@ class PosPengamatanController extends Controller
     #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
     #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
     #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
+    #[QueryParameter('jenis_pos_id', description: 'jenis pos id.', type: 'number', default: '', example: '1')]
     public function index(Request $request)
     {
         $data = $this->posPengamatanService->getAll($request);
@@ -34,7 +36,23 @@ class PosPengamatanController extends Controller
         return $this->successResponseWithDataIndex(
             $data,
             PosPengamatanResource::collection($data),
-            'Data detail pengamatan berhasil diambil',
+            'Data pos pengamatan berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
+    #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
+    #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
+    #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
+    #[QueryParameter('jenis_pos_id', description: 'jenis pos id.', type: 'number', default: '', example: '1')]
+    public function landing(Request $request)
+    {
+        $data = $this->posPengamatanService->landing($request);
+
+        return $this->successResponseWithDataIndex(
+            $data,
+            PosPengamatanResource::collection($data),
+            'Data pos pengamatan berhasil diambil',
             Response::HTTP_OK
         );
     }
@@ -44,7 +62,17 @@ class PosPengamatanController extends Controller
         $this->posPengamatanService->store($request);
 
         return $this->successResponse(
-            'Berhasil menambah data detail pengamatan',
+            'Berhasil menambah data pos pengamatan',
+            Response::HTTP_CREATED
+        );
+    }
+
+    public function import(PosPengamatanImportRequest $request)
+    {
+        $this->posPengamatanService->import($request);
+
+        return $this->successResponse(
+            'Berhasil menambah data pos pengamatan',
             Response::HTTP_CREATED
         );
     }
@@ -55,7 +83,7 @@ class PosPengamatanController extends Controller
 
         return $this->successResponseWithData(
             PosPengamatanResource::make($data),
-            'Data detail pengamatan berhasil diambil',
+            'Data pos pengamatan berhasil diambil',
             Response::HTTP_OK
         );
     }
@@ -65,7 +93,7 @@ class PosPengamatanController extends Controller
         $this->posPengamatanService->update($request, $id);
 
         return $this->successResponse(
-            'Berhasil mengubah data detail pengamatan',
+            'Berhasil mengubah data pos pengamatan',
             Response::HTTP_OK
         );
     }
@@ -75,7 +103,7 @@ class PosPengamatanController extends Controller
         $this->posPengamatanService->destroy($id);
 
         return $this->successResponse(
-            'Berhasil menghapus data detail pengamatan',
+            'Berhasil menghapus data pos pengamatan',
             Response::HTTP_OK
         );
     }
@@ -85,7 +113,7 @@ class PosPengamatanController extends Controller
         $this->posPengamatanService->multiDestroy($request->ids);
 
         return $this->successResponse(
-            'Berhasil menghapus data detail pengamatan',
+            'Berhasil menghapus data pos pengamatan',
             Response::HTTP_OK
         );
     }

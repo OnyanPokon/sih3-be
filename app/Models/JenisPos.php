@@ -8,7 +8,7 @@ class JenisPos extends Model
 {
     protected $guarded = [];
 
-    protected $table = 'pos_pengamatan';
+    protected $table = 'jenis_pos';
 
     public function kategori()
     {
