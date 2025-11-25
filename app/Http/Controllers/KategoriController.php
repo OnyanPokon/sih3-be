@@ -27,7 +27,8 @@ class KategoriController extends Controller
     #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
     #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
     #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $data = $this->kategoriService->getAll($request);
 
         return $this->successResponseWithDataIndex(
@@ -38,7 +39,19 @@ class KategoriController extends Controller
         );
     }
 
-    public function store(KategoriRequest $request) {
+    public function landing(Request $request)
+    {
+        $data = $this->kategoriService->landing($request);
+
+        return $this->successResponseWithData(
+            KategoriResource::collection($data),
+            'Data kategori berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
+    public function store(KategoriRequest $request)
+    {
         $this->kategoriService->store($request);
 
         return $this->successResponse(
@@ -47,7 +60,8 @@ class KategoriController extends Controller
         );
     }
 
-    public function show($id) {
+    public function show($id)
+    {
         $data = $this->kategoriService->show($id);
 
         return $this->successResponseWithData(
@@ -57,7 +71,8 @@ class KategoriController extends Controller
         );
     }
 
-    public function update(KategoriRequest $request, $id) {
+    public function update(KategoriRequest $request, $id)
+    {
         $this->kategoriService->update($request, $id);
 
         return $this->successResponse(
@@ -66,7 +81,8 @@ class KategoriController extends Controller
         );
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $this->kategoriService->destroy($id);
 
         return $this->successResponse(
@@ -75,7 +91,8 @@ class KategoriController extends Controller
         );
     }
 
-    public function multiDestroy(Request $request) {
+    public function multiDestroy(Request $request)
+    {
         $this->kategoriService->multiDestroy($request->ids);
 
         return $this->successResponse(

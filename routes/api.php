@@ -35,6 +35,10 @@ Route::prefix('landing')->group(function () {
         Route::get('/', [UnorController::class, 'landing']);
     });
 
+    Route::prefix('kategori')->group(function () {
+        Route::get('/', [KategoriController::class, 'landing']);
+    });
+
     Route::prefix('jenis-pos')->group(function () {
         Route::get('/', [JenisPosController::class, 'landing']);
     });
