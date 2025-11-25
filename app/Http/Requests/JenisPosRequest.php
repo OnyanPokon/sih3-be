@@ -25,7 +25,6 @@ class JenisPosRequest extends FormRequest
             'kategori_id' => 'required|exists:kategori,id',
             'nama' => 'required|string|max:255',
             'kewenangan' => 'required|string|max:255',
-            'thumbnail' => 'nullable|mimes:jpg,png,jpeg|max:2048',
             'status' => 'sometimes|in:publikasi,draft',
         ];
     }
@@ -37,8 +36,6 @@ class JenisPosRequest extends FormRequest
             'kategori_id.exists' => 'Kategori tidak ditemukan',
             'nama.required' => 'Nama pos harus diisi',
             'kewenangan.required' => 'Kewenangan harus diisi',
-            'thumbnail.mimes' => 'Thumbnail harus berupa file gambar',
-            'thumbnail.max' => 'Thumbnail tidak boleh lebih dari 2MB',
             'status.in' => 'Status harus publikasi atau draft',
         ];
     }
