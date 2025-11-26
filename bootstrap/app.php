@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Akses tidak diizinkan. Silakan masuk terlebih dahulu.',
+                    'code' => 401,
+                    'status' => false,
                 ], 401);
             }
         });
@@ -30,7 +33,49 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Anda tidak memiliki hak akses untuk melakukan aksi ini.',
+                    'code' => 403,
+                    'status' => false,
                 ], 403);
+            }
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Metode HTTP tidak diizinkan untuk endpoint ini.',
+                    'code' => 405,
+                    'status' => false,
+                ], 405);
+            }
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage() ?: 'Resource tidak ditemukan',
+                    'code' => 404,
+                    'status' => false,
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (ConflictHttpException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'code' => 409,
+                    'status' => false,
+                ], 409);
+            }
+        });
+
+        $exceptions->render(function (Throwable $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'code' => 422,
+                    'status' => false,
+                ], 422);
             }
         });
     })->create();

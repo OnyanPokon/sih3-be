@@ -145,7 +145,7 @@ class ArtikelService
         $data = $this->model->find($id);
 
         if (!$data) {
-            throw new ServiceException('Data tidak ditemukan', 404);
+            throw new NotFoundHttpException('Data tidak ditemukan');
         }
         return $data;
     }

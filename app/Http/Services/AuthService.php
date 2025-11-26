@@ -70,7 +70,7 @@ class AuthService
     {
         $data = $request->user();
         if (!Hash::check($request->password_lama, $data->password)) {
-            throw new ServiceException('Password lama salah', 401);
+            throw new ConflictHttpException('Password lama salah');
         }
         $data->password = bcrypt($request->password_baru);
         $data->save();

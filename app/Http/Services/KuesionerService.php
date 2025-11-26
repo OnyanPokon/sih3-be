@@ -9,6 +9,7 @@ use App\Exports\KuesionerExport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class KuesionerService
 {
@@ -56,7 +57,6 @@ class KuesionerService
             return Excel::download(new KuesionerExport($artikel_id, $fields, $headings), 'kuesioner-' . $unor->nama . '.xlsx');
         } catch (Exception $e) {
             throw $e;
-            
         }
     }
 
@@ -77,7 +77,7 @@ class KuesionerService
         $data = $this->model->find($id);
 
         if (!$data) {
-            throw new ServiceException('Data tidak ditemukan', 404);
+            throw new NotFoundHttpException('Data tidak ditemukan');
         }
         return $data;
     }

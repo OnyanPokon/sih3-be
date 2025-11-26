@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PemetaanService
 {
@@ -127,7 +128,7 @@ class PemetaanService
         $data = $this->model->find($id);
 
         if (!$data) {
-            throw new ServiceException('Data tidak ditemukan', 404);
+            throw new NotFoundHttpException('Data tidak ditemukan');
         }
         return $data;
     }
