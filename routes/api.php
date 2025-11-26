@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AuthSsoController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\DokumenArtikelController;
 use App\Http\Controllers\JenisPosController;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login/sso', [AuthSsoController::class, 'login']);
 });
 
 Route::prefix("lupa-password")->controller(LupaPasswordController::class)->group(function () {

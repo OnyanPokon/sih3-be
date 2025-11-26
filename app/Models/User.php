@@ -23,6 +23,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'sso_access_token'
     ];
 
     /**
