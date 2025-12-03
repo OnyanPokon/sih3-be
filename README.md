@@ -195,3 +195,4 @@ Jika Anda menemukan kerentanan keamanan dalam Laravel, silakan kirim email ke Ya
 ## 📄 Lisensi
 
 Kerangka kerja Laravel adalah perangkat lunak sumber terbuka yang dilisensikan di bawah [lisensi MIT](https://opensource.org/licenses/MIT).
+
