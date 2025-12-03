@@ -1,0 +1,179 @@
+#!/bin/bash
+set -e
+# chmod +x 8029_sdgs_install.sh
+
+### [SETUP] Ganti ini dengan nama projectmu
+# read -p "Masukkan nama project (contoh: appSKM): " PROJECT_NAME
+PROJECT_NAME="sdgs"
+
+### [DERIVED VARIABEL]
+PROJECT_DIR="$PROJECT_NAME"
+CONTAINER_NAME="container-${PROJECT_NAME,,}" # lowercase
+APP_NAME="${PROJECT_NAME^}"                  # kapital huruf pertama
+GITLAB_BRANCH="docker"
+SERVER_PORT="8029"
+
+APP_DEBUG="true"
+APP_ENV="local"
+APP_HTTPS="true"
+APP_URL="http://localhost:8029"
+
+
+DB_CONNECTION=${DB_CONNECTION:-mysql}
+DB_HOST=${DB_HOST:-172.17.7.240}
+DB_PORT=${DB_PORT:-3306}
+DB_DATABASE=${DB_DATABASE:-${CONTAINER_NAME}}
+DB_USERNAME=${DB_USERNAME:-root}
+DB_PASSWORD=${DB_PASSWORD:-root}
+
+
+
+SESSION_DRIVER="redis"
+REDIS_HOST="${REDIS_HOST:-172.17.7.240}"
+REDIS_PASSWORD="${REDIS_PASSWORD:-root}"
+REDIS_PORT="${REDIS_PORT:-6379}"
+
+### [1] Cek Docker
+echo "=== [1] Cek apakah Docker sudah terinstal... ==="
+if ! command -v docker &>/dev/null; then
+    echo "Docker belum terinstal. Menginstal Docker..."
+    sudo apt-get update
+    sudo apt-get install -y ca-certificates curl
+
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" |
+        sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+else
+    echo "Docker sudah terinstal."
+fi
+
+### [2] Clone project jika belum ada
+echo "=== [2] Cek folder $PROJECT_DIR... ==="
+if [ -d "$PROJECT_DIR" ]; then
+    echo "Folder $PROJECT_DIR sudah ada, lewati proses git clone."
+else
+    ### [2] Clone project jika belum ada
+    echo "Folder $PROJECT_DIR belum ada. Clone dari GitLab..."
+
+    read -p "Masukkan Url Repository GitLab Publik anda: " URL_REPO_GITLAB
+
+    GIT_URL="${URL_REPO_GITLAB}"
+
+    echo "Meng-clone dari: $GIT_URL"
+    git clone "$GIT_URL" "$PROJECT_DIR"
+fi
+
+cd "$PROJECT_DIR"
+git pull origin
+
+### [3] Checkout branch
+echo "=== [3] Checkout ke branch ${GITLAB_BRANCH}  ==="
+git checkout "$GITLAB_BRANCH" || echo "Branch main sudah aktif atau tidak ditemukan."
+
+### [4] Copy .env docker
+echo "=== [4] Copy .env di folder docker ==="
+cd docker
+cp -n .env.example .env
+echo "
+SERVER_NAME=${CONTAINER_NAME}
+SERVER_PORT=${SERVER_PORT}
+SERVER_CPU=\"0.5\"
+SERVER_MEMORY=\"512M\"
+" >>.env
+
+### [5] Build & Up Docker
+echo "=== [5] Jalankan docker compose build dan up ==="
+echo "=== [5.1] Build image ==="
+docker compose -p "$CONTAINER_NAME" build app
+echo "=== [5.2] Up container ==="
+docker compose -p "$CONTAINER_NAME" up -d
+
+### [6] Composer install
+echo "=== [6] Composer install dependencies ==="
+if ! docker compose -p "$CONTAINER_NAME" exec app composer install --no-dev; then
+    echo "composer install gagal, coba dengan --ignore-platform-reqs"
+    docker compose -p "$CONTAINER_NAME" exec app composer install --no-dev --ignore-platform-reqs
+fi
+
+### [7] Copy .env aplikasi
+echo "=== [7] Copy .env ke root dan konfigurasi database ==="
+cd ..
+rm -f .env
+cp -n .env.example .env
+
+cat <<EOF >>.env
+
+APP_NAME=${APP_NAME}
+APP_ENV=${APP_ENV}
+APP_DEBUG=${APP_DEBUG}
+APP_URL=${APP_URL:-http://localhost:${SERVER_PORT}}
+APP_HTTPS=${APP_HTTPS:-false}
+
+DB_CONNECTION=${DB_CONNECTION:-mysql}
+DB_HOST=${DB_HOST:-127.0.0.1}
+DB_PORT=${DB_PORT:-3306}
+DB_DATABASE=${DB_DATABASE:-${CONTAINER_NAME}}
+DB_USERNAME=${DB_USERNAME:-root}
+DB_PASSWORD=${DB_PASSWORD:-root}
+
+
+EOF
+
+if [[ "$SESSION_DRIVER" == "redis" ]]; then
+    cat <<EOF >>.env
+
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+CACHE_STORE=redis
+
+REDIS_HOST=${REDIS_HOST:-127.0.0.1}
+REDIS_PASSWORD=${REDIS_PASSWORD}
+REDIS_PORT=${REDIS_PORT:-6379}
+EOF
+fi
+
+### [8] App key
+echo "=== [8] Generate app key ==="
+docker compose -p "$CONTAINER_NAME" exec app php artisan key:generate
+
+### [9] Set permission & storage
+echo "=== [9] Set permission storage ==="
+docker compose -p "$CONTAINER_NAME" exec app chmod o+w -R storage || true
+docker compose -p "$CONTAINER_NAME" exec app php artisan storage:link || true
+
+### [10] Migrate DB
+echo "=== [10] Jalankan migrate utama ==="
+docker compose -p "$CONTAINER_NAME" exec app php artisan migrate || echo "Sudah migrate?"
+
+### [11] Buat user
+echo "=== [11] Buat user ==="
+read -p "Buat User ? (y/n) default No: " IS_CREATE_USER
+if [[ "$IS_CREATE_USER" =~ ^[Yy]$ ]]; then
+    # docker compose -p "$CONTAINER_NAME" exec app php artisan make:filament-user || echo "Gagal membuat user"
+fi
+
+### [12] Role & permission
+echo "=== [12] Seeder Awal ==="
+read -p "Generate Seeder Awal? (y/n) default No: " IS_SEEDER_AWAL
+if [[ "$IS_SEEDER_AWAL" =~ ^[Yy]$ ]]; then
+
+    echo "Jalankan Seeder Awal"
+    # docker compose -p "$CONTAINER_NAME" exec app php artisan db:seed --class=classSeeder || echo "Seeder gagal dijalankan classSeeder"
+
+fi
+
+### [✅ DONE]
+echo "=== ✅ SELESAI: $PROJECT_NAME berhasil diinstal dan dijalankan ==="
+docker compose -p "$CONTAINER_NAME" restart
+docker compose -p "$CONTAINER_NAME" ps
+
+echo "=== [13] Sampel ==="
+echo "docker compose -p ${CONTAINER_NAME} ps"
