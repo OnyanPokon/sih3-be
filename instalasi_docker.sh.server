@@ -4,35 +4,35 @@ set -e
 
 ### [SETUP] Ganti ini dengan nama projectmu
 # read -p "Masukkan nama project (contoh: appSKM): " PROJECT_NAME
-PROJECT_NAME="sdgs"
+PROJECT_NAME="sih3"
 
 ### [DERIVED VARIABEL]
 PROJECT_DIR="$PROJECT_NAME"
 CONTAINER_NAME="container-${PROJECT_NAME,,}" # lowercase
 APP_NAME="${PROJECT_NAME^}"                  # kapital huruf pertama
 GITLAB_BRANCH="docker"
-SERVER_PORT="8029"
+SERVER_PORT="8031"
 
 APP_DEBUG="true"
 APP_ENV="local"
 APP_HTTPS="true"
-APP_URL="http://localhost:8029"
+APP_URL="http://localhost:8031"
 
+DB_CONNECTION=mysql
+DB_HOST="172.16.0.178"
+DB_PORT=3306
+DB_DATABASE="shi3"
+DB_USERNAME="shi3"
+DB_PASSWORD="sgsdR3shi37%n85%6Sdx"
 
-DB_CONNECTION=${DB_CONNECTION:-mysql}
-DB_HOST=${DB_HOST:-172.17.7.240}
-DB_PORT=${DB_PORT:-3306}
-DB_DATABASE=${DB_DATABASE:-${CONTAINER_NAME}}
-DB_USERNAME=${DB_USERNAME:-root}
-DB_PASSWORD=${DB_PASSWORD:-root}
+echo "docker compose -p ${CONTAINER_NAME} ps"
 
-
-
-SESSION_DRIVER="redis"
-REDIS_HOST="${REDIS_HOST:-172.17.7.240}"
-REDIS_PASSWORD="${REDIS_PASSWORD:-root}"
-REDIS_PORT="${REDIS_PORT:-6379}"
-
+read -p "Apakah ingin melakukan installasi Y/N default(n) ? :" INSTALL_YN
+if [[ $INSTALL_YN =~ ^Y|y ]]; then
+    true
+else
+    exit
+fi
 ### [1] Cek Docker
 echo "=== [1] Cek apakah Docker sudah terinstal... ==="
 if ! command -v docker &>/dev/null; then
