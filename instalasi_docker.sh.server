@@ -157,6 +157,7 @@ docker compose -p "$CONTAINER_NAME" exec app php artisan migrate || echo "Sudah 
 echo "=== [11] Buat user ==="
 read -p "Buat User ? (y/n) default No: " IS_CREATE_USER
 if [[ "$IS_CREATE_USER" =~ ^[Yy]$ ]]; then
+    echo "Jalankan perintah untuk membuat user"
     # docker compose -p "$CONTAINER_NAME" exec app php artisan make:filament-user || echo "Gagal membuat user"
 fi
 
