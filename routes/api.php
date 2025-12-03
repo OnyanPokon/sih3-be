@@ -65,8 +65,8 @@ Route::prefix('landing')->group(function () {
         Route::get('/by-kategori', [PemetaanController::class, 'byKategori']);
     });
     Route::prefix('produk-hukum')->group(function () {
-        Route::get('/produk-hukum', [ProdukHukumController::class, 'landing']);
-        Route::get('/produk-hukum/{slug}', [ProdukHukumController::class, 'detail']);
+        Route::get('/', [ProdukHukumController::class, 'landing']);
+        Route::get('/{slug}', [ProdukHukumController::class, 'detail']);
     });
     Route::prefix('berita')->group(function () {
         Route::get('/', [BeritaController::class, 'landing']);
