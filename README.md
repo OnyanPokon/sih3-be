@@ -21,6 +21,36 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## 🛠️ Installation & Deployment
+
+Bagian ini memisahkan perintah yang diperlukan untuk menjalankan aplikasi berdasarkan frekuensi eksekusinya. Pemisahan ini sangat relevan untuk lingkungan **Docker** atau *deployment* otomatis.
+
+### 1. Perintah Setup Sekali Jalan (Initial Setup)
+
+Perintah-perintah ini dijalankan **hanya sekali** pada saat inisialisasi proyek, atau setiap kali file **`.env`**, **`composer.lock`**, atau **`package-lock.json`** berubah.
+
+| Perintah | Tujuan | Catatan |
+| :--- | :--- | :--- |
+| `git clone [URL_REPO]` | Mengkloning repositori. | |
+| `cp .env.example .env` | Menyalin *template* konfigurasi lingkungan. | **Wajib** dikonfigurasi (`DB_...`). |
+| `php artisan key:generate` | Membuat kunci aplikasi unik. | |
+| `composer install --no-dev --prefer-dist` | Menginstal dependensi PHP dari `composer.lock`. | Jalankan lagi jika `composer.lock` berubah. |
+| `php artisan db:seed` | Menjalankan *seeder* spesifik. | Contoh untuk inisialisasi *permission*. |
+
+### 2. Perintah Rutin (Dijalankan Setiap Kali / Per Container Start)
+
+Perintah-perintah ini dijalankan **setiap kali** aplikasi di-*deploy* atau *container* dihidupkan untuk memastikan lingkungan berada dalam kondisi optimal dan skema *database* terbaru.
+
+| Perintah | Tujuan | Frekuensi |
+| :--- | :--- | :--- |
+| `php artisan migrate --force` | Menjalankan migrasi *database*. | Setiap *deployment* baru / *container* *start*. |
+| `php artisan optimize:clear` | Menghapus *cache* lama (konfigurasi, *route*, *view*). | Setiap *deployment*. |
+| `php artisan config:cache` | Meng-*cache* konfigurasi aplikasi untuk kinerja. | Setiap *deployment*. |
+| `php artisan route:cache` | Meng-*cache* definisi *route* aplikasi. | Setiap *deployment*. |
+| `php artisan view:cache` | Meng-*cache* tampilan Blade. | Setiap *deployment*. |
+
+---
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
