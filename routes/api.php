@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/login/sso', [AuthSsoController::class, 'login']);
+    Route::post('/login/sso-callback', [AuthSsoController::class, 'loginSsoCallback']);
 });
 
 Route::prefix("lupa-password")->controller(LupaPasswordController::class)->group(function () {

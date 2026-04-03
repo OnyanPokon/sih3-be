@@ -28,11 +28,15 @@ class AuthSsoController extends Controller
         );
     }
 
-    public function logout(Request $request)
+    public function loginSsoCallback(Request $request)
     {
-        $this->authService->logout($request);
-        return $this->successResponse(
-            "Berhasil logout",
+        $request->validate([
+            'code' => 'required|string|min:400',
+        ]);
+        $data = $this->authService->loginCode($request);
+        return $this->successResponseWithData(
+            $data,
+            "Berhasil Login",
             Response::HTTP_OK
         );
     }
