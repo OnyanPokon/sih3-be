@@ -34,7 +34,7 @@ class UnorService
 
     public function landing()
     {
-        $data = $this->model->latest();
+        $data = $this->model->where('status', 'aktif')->latest();
 
         return $data->get();
     }

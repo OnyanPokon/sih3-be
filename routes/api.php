@@ -108,6 +108,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::put('/{id}', [PersonilController::class, 'update']);
         Route::put('/reset-password/{id}', [PersonilController::class, 'resetPassword']);
         Route::put('/update-profil/{id}', [PersonilController::class, 'updateProfil']);
+        Route::put('/status/{id}', [PersonilController::class, 'updateStatus']);
         Route::delete('/{id}', [PersonilController::class, 'destroy']);
     });
 

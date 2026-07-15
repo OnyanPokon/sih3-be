@@ -16,6 +16,7 @@ class Unor extends Model
         'logo',
         'website',
         'no_hp',
+        'status',
     ];
 
     public function personil()
