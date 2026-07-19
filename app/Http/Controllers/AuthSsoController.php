@@ -18,15 +18,6 @@ class AuthSsoController extends Controller
         $this->authService = $authService;
     }
 
-    public function login(LoginRequest $request)
-    {
-        $data = $this->authService->login($request);
-        return $this->successResponseWithData(
-            $data,
-            "Berhasil Login",
-            Response::HTTP_OK
-        );
-    }
 
     public function loginSsoCallback(Request $request)
     {

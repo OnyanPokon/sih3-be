@@ -10,6 +10,11 @@ class Kategori extends Model
 
     protected $table = 'kategori';
 
+    public function unors()
+    {
+        return $this->belongsToMany(Unor::class, 'kategori_unor', 'kategori_id', 'unor_id');
+    }
+
     public function pemetaan()
     {
         return $this->hasMany(Pemetaan::class);

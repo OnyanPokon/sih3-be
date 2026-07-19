@@ -23,7 +23,7 @@ class KategoriService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $data = $this->model->with('unors')->latest();
 
         if ($search = $request->query('search')) {
             $data->where('nama_kategori', 'like', '%' . $search . '%');
@@ -50,7 +50,13 @@ class KategoriService
 
             $validatedData['slug'] = str()->slug($validatedData['nama_kategori']);
 
-            $this->model->create($validatedData);
+            $unorIds = $request->input('unor_ids');
+            unset($validatedData['unor_ids']);
+
+            $category = $this->model->create($validatedData);
+            if ($request->has('unor_ids')) {
+                $category->unors()->sync($unorIds);
+            }
             return $validatedData;
         } catch (Exception $e) {
 
@@ -60,7 +66,7 @@ class KategoriService
 
     public function show($id)
     {
-        $data = $this->model->find($id);
+        $data = $this->model->with('unors')->find($id);
 
         if (!$data) {
             throw new NotFoundHttpException('Data tidak ditemukan');
@@ -83,7 +89,13 @@ class KategoriService
 
             $validatedData['slug'] = str()->slug($validatedData['nama_kategori']);
 
+            $unorIds = $request->input('unor_ids');
+            unset($validatedData['unor_ids']);
+
             $data->update($validatedData);
+            if ($request->has('unor_ids')) {
+                $data->unors()->sync($unorIds);
+            }
 
             return $data;
         } catch (Exception $e) {

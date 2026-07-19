@@ -19,6 +19,11 @@ class Unor extends Model
         'status',
     ];
 
+    public function kategoris()
+    {
+        return $this->belongsToMany(Kategori::class, 'kategori_unor', 'unor_id', 'kategori_id');
+    }
+
     public function personil()
     {
         return $this->hasMany(Personil::class);

@@ -25,6 +25,8 @@ class KategoriRequest extends FormRequest
             'nama_kategori' => 'required',
             'deskripsi' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'unor_ids' => 'nullable|array',
+            'unor_ids.*' => 'exists:unor,id',
         ];
     }
 
