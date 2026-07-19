@@ -18,6 +18,7 @@ use App\Http\Controllers\ProdukHukumController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ThumbnailArtikelController;
 use App\Http\Controllers\UnorController;
+use App\Http\Controllers\WilayahSungaiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,10 @@ Route::prefix("lupa-password")->controller(LupaPasswordController::class)->group
 Route::prefix('landing')->group(function () {
     Route::prefix('unor')->group(function () {
         Route::get('/', [UnorController::class, 'landing']);
+    });
+
+    Route::prefix('wilayah-sungai')->group(function () {
+        Route::get('/', [WilayahSungaiController::class, 'landing']);
     });
 
     Route::prefix('kategori')->group(function () {
@@ -127,6 +132,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/{id}', [KategoriController::class, 'show']);
         Route::put('/{id}', [KategoriController::class, 'update']);
         Route::delete('/{id}', [KategoriController::class, 'destroy']);
+    });
+
+    Route::prefix('wilayah-sungai')->group(function () {
+        Route::get('/', [WilayahSungaiController::class, 'index']);
+        Route::post('/', [WilayahSungaiController::class, 'store']);
+        Route::get('/{id}', [WilayahSungaiController::class, 'show']);
+        Route::put('/{id}', [WilayahSungaiController::class, 'update']);
+        Route::delete('/{id}', [WilayahSungaiController::class, 'destroy']);
     });
 
     Route::prefix('pemetaan')->group(function () {

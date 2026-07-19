@@ -21,10 +21,10 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($namaRole as $role) {
-            Role::create(['name' => $role]);
+            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
-        Log::info('Role berhasil di tambahkan');
+        Log::info('Role berhasil di tambahkan atau sudah ada');
 
         $permissions_superadmin = [
             'dashboard',
@@ -37,21 +37,21 @@ class RolePermissionSeeder extends Seeder
             'lihat_pemetaan',
             'lihat_berita',
             'perbarui_profil',
+            'lihat_wilayah_sungai'
         ];
 
         foreach ($permissions_superadmin as $permission) {
-            Permission::create(['name' => $permission, 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $roleSuperAdmin = Role::where('name', 'superadmin')->first();
-
-        foreach ($permissions_superadmin as $permission) {
-            $roleSuperAdmin->givePermissionTo($permission);
+        if ($roleSuperAdmin) {
+            $roleSuperAdmin->syncPermissions($permissions_superadmin);
         }
 
-        Log::info('Permission berhasil di tambahkan dan dikaitkan dengan role superadmin');
+        Log::info('Permission berhasil di tambahkan/diperbarui dan dikaitkan dengan role superadmin');
 
         $permissions_admin = [
             'dashboard',
@@ -61,24 +61,20 @@ class RolePermissionSeeder extends Seeder
             'kelola_artikel',
             'kelola_berita',
             'kelola_pemetaan',
-            'lihat_kategori'
+            'lihat_kategori',
+            'kelola_wilayah_sungai'
         ];
 
         foreach ($permissions_admin as $permission) {
-            if (Permission::where('name', $permission)->exists()) {
-                continue;
-            }
-            Permission::create(['name' => $permission, 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
         $roleAdmin = Role::where('name', 'admin')->first();
-
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-        foreach ($permissions_admin as $permission) {
-            $roleAdmin->givePermissionTo($permission);
+        if ($roleAdmin) {
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+            $roleAdmin->syncPermissions($permissions_admin);
         }
 
-        Log::info('Permission berhasil di tambahkan dan dikaitkan dengan role admin');
+        Log::info('Permission berhasil di tambahkan/diperbarui dan dikaitkan dengan role admin');
     }
 }

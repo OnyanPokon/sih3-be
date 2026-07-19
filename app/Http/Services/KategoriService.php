@@ -29,6 +29,12 @@ class KategoriService
             $data->where('nama_kategori', 'like', '%' . $search . '%');
         }
 
+        if ($unorId = $request->query('unor_id')) {
+            $data->whereHas('unors', function($q) use ($unorId) {
+                $q->where('unor_id', $unorId);
+            });
+        }
+
         return $data->paginate($per_page);
     }
 

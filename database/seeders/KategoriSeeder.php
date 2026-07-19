@@ -40,7 +40,14 @@ class KategoriSeeder extends Seeder
         ];
 
         foreach ($kategoriData as $kategori) {
-            \App\Models\Kategori::create($kategori);
+            \App\Models\Kategori::updateOrCreate(
+                ['slug' => $kategori['slug']],
+                [
+                    'nama_kategori' => $kategori['nama_kategori'],
+                    'logo' => $kategori['logo'],
+                    'deskripsi' => $kategori['deskripsi'],
+                ]
+            );
         }
     }
 }
