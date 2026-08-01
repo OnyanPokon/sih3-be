@@ -21,7 +21,9 @@ class AuthService
 
     public function me($request)
     {
-        $data = $request->user();
+        $data = $request->user()->load([
+            'personil.unor.kategoris'
+        ]);
         if (!$data) {
             throw new Exception('User tidak ditemukan', 404);
         }

@@ -24,7 +24,7 @@ class JenisPosService
         $data = $this->model->latest();
 
         if ($search = $request->query('search')) {
-            $data->where('nama_pos', 'like', '%' . $search . '%')->orWhere('kewenangan', 'like', '%' . $search . '%');
+            $data->where('nama', 'like', '%' . $search . '%')->orWhere('kewenangan', 'like', '%' . $search . '%');
         }
 
         if ($status = $request->query('status')) {
