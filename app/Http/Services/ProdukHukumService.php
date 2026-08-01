@@ -35,8 +35,8 @@ class ProdukHukumService
             $data->where('unor_id', $unor_id);
         }
 
-        if ($kategori = $request->query('kategori')) {
-            $data->where('kategori', $kategori);
+        if ($tahun = $request->query('tahun')) {
+            $data->where('tahun', $tahun);
         }
 
         return $data->paginate($per_page);
