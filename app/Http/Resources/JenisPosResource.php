@@ -23,6 +23,7 @@ class JenisPosResource extends JsonResource
             'unor_id' => $this->unor,
             'user_id' => $this->user,
             'kategori_id' => $this->kategori,
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

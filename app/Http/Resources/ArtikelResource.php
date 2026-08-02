@@ -29,6 +29,7 @@ class ArtikelResource extends JsonResource
             'thumbnails' => $this->thumbnails,
             'total_kunjungan' => $this->total_kunjungan,
             'total_unduh' => $this->total_unduh,
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

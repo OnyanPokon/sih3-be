@@ -19,4 +19,10 @@ class WilayahSungai extends Model
     {
         return $this->belongsTo(Unor::class);
     }
+
+    public function tags()
+    {
+        return $this->morphMany(Tag::class, 'referensi');
+    }
 }
+

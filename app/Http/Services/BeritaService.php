@@ -26,7 +26,7 @@ class BeritaService
     public function landing($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->where('status', 'publikasi')->latest();
+        $data = $this->model->with(['tags.referensi'])->where('status', 'publikasi')->latest();
 
         if ($search = $request->query('search')) {
             $data->where('judul', 'like', '%' . $search . '%');
@@ -49,7 +49,7 @@ class BeritaService
 
     public function detail($slug)
     {
-        $data = $this->model->where('slug', $slug)->where('status', 'publikasi')->first();
+        $data = $this->model->with(['tags.referensi'])->where('slug', $slug)->where('status', 'publikasi')->first();
 
         if (!$data) {
             throw new ServiceException('Berita tidak ditemukan', 404);
@@ -61,7 +61,7 @@ class BeritaService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $data = $this->model->with(['tags.referensi'])->latest();
 
         if ($search = $request->query('search')) {
             $data->where('judul', 'like', '%' . $search . '%');
@@ -100,16 +100,20 @@ class BeritaService
                 $thumbnail = $this->uploadPhotoAndConvertToWebp($request->file('thumbnail'), $this->path);
                 $validatedData['thumnbail'] = $thumbnail;
             }
-            $this->model->create([
+            $berita = $this->model->create([
                 'judul' => $validatedData['judul'],
                 'slug' => $validatedData['slug'],
                 'konten' => $validatedData['konten'],
-                'thumnbail' => $validatedData['thumnbail'],
+                'thumnbail' => $validatedData['thumnbail'] ?? 'default.png',
                 'status' => $validatedData['status'],
                 'unor_id' => $validatedData['unor_id'],
                 'kategori_id' => $validatedData['kategori_id'],
                 'user_id' => $validatedData['user_id']
             ]);
+
+            if (isset($validatedData['tag_ids']) && is_array($validatedData['tag_ids'])) {
+                $berita->syncTags($validatedData['tag_ids']);
+            }
         } catch (Exception $e) {
 
             throw $e;
@@ -118,7 +122,7 @@ class BeritaService
 
     public function show($id)
     {
-        $data = $this->model->find($id);
+        $data = $this->model->with(['tags.referensi'])->find($id);
 
         if (!$data) {
             throw new NotFoundHttpException('Data tidak ditemukan');
@@ -151,6 +155,10 @@ class BeritaService
                 'user_id' => $validatedData['user_id'],
                 'status' => $request->status ? $validatedData['status'] : $data->status
             ]);
+
+            if (isset($validatedData['tag_ids']) && is_array($validatedData['tag_ids'])) {
+                $data->syncTags($validatedData['tag_ids']);
+            }
 
             return $data;
         } catch (Exception $e) {

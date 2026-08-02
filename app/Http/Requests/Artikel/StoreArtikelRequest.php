@@ -30,6 +30,8 @@ class StoreArtikelRequest extends FormRequest
             'dokumen' => 'nullable|array',
             'dokumen.*' => 'nullable|file|mimes:pdf|max:5024',
             'kuesioner_tambahan' => 'required|boolean',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'exists:tags,id',
         ];
     }
 

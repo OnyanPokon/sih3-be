@@ -26,7 +26,7 @@ class ArtikelService
     public function landing($request)
     {
         $per_page = $request->per_page ?? 100;
-        $data = $this->model->where('status', 'publikasi')->latest();
+        $data = $this->model->with(['tags.referensi'])->where('status', 'publikasi')->latest();
 
         if ($search = $request->query('search')) {
             $data->where('judul', 'like', '%' . $search . '%');
@@ -47,7 +47,8 @@ class ArtikelService
 
     public function detail($slug)
     {
-        $data = $this->model->where('slug', $slug)
+        $data = $this->model->with(['tags.referensi'])
+            ->where('slug', $slug)
             ->where('status', 'publikasi')
             ->first();
 
@@ -63,7 +64,7 @@ class ArtikelService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $data = $this->model->with(['tags.referensi'])->latest();
 
         if ($search = $request->query('search')) {
             $data->where('judul', 'like', '%' . $search . '%');
@@ -113,6 +114,10 @@ class ArtikelService
                 'user_id' => $validatedData['user_id'],
             ]);
 
+            if (isset($validatedData['tag_ids']) && is_array($validatedData['tag_ids'])) {
+                $artikel->syncTags($validatedData['tag_ids']);
+            }
+
             if ($request->hasFile('thumbnails')) {
                 foreach ($request->file('thumbnails') as $file) {
                     $thumbnail_artikel = $this->uploadPhotoAndConvertToWebp($file, $this->path_thumbnail);
@@ -142,7 +147,7 @@ class ArtikelService
 
     public function show($id)
     {
-        $data = $this->model->find($id);
+        $data = $this->model->with(['tags.referensi'])->find($id);
 
         if (!$data) {
             throw new NotFoundHttpException('Data tidak ditemukan');
@@ -156,6 +161,10 @@ class ArtikelService
             $validatedData = $request->validated();
             $data = $this->show($id);
             $data->update($validatedData);
+
+            if (isset($validatedData['tag_ids']) && is_array($validatedData['tag_ids'])) {
+                $data->syncTags($validatedData['tag_ids']);
+            }
 
             return $data;
         } catch (Exception $e) {
