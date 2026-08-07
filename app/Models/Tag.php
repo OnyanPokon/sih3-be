@@ -15,6 +15,9 @@ class Tag extends Model
         'user_id',
         'nama',
         'deskripsi',
+        'warna',
+        'icon',
+        'kategori_id',
         'referensi_id',
         'referensi_type',
     ];
@@ -22,6 +25,11 @@ class Tag extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function kategori(): BelongsTo
+    {
+        return $this->belongsTo(Kategori::class);
     }
 
     public function referensi(): MorphTo

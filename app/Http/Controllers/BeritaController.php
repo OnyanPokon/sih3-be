@@ -30,6 +30,8 @@ class BeritaController extends Controller
     #[QueryParameter('status', description: 'The search query.', type: 'string', default: '', example: 'publikasi,draft')]
     #[QueryParameter('unor_id', description: 'The unor id.', type: 'integer', default: '', example: '1')]
     #[QueryParameter('kategori_id', description: 'The kategori id.', type: 'integer', default: '', example: '1')]
+    #[QueryParameter('tag_id', description: 'Filter berita berdasarkan relasi tag id.', type: 'integer', default: '', example: '1')]
+    #[QueryParameter('wilayah_sungai_id', description: 'Filter berita berdasarkan tag dengan referensi wilayah sungai.', type: 'integer', default: '', example: '1')]
     public function index(Request $request)
     {
         $data = $this->beritaService->getAll($request);
@@ -47,6 +49,8 @@ class BeritaController extends Controller
     #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
     #[QueryParameter('unor_id', description: 'The unor id.', type: 'integer', default: '', example: '1')]
     #[QueryParameter('kategori_id', description: 'The kategori id.', type: 'integer', default: '', example: '1')]
+    #[QueryParameter('tag_id', description: 'Filter berita berdasarkan relasi tag id.', type: 'integer', default: '', example: '1')]
+    #[QueryParameter('wilayah_sungai_id', description: 'Filter berita berdasarkan tag dengan referensi wilayah sungai.', type: 'integer', default: '', example: '1')]
     public function landing(Request $request)
     {
         $data = $this->beritaService->landing($request);

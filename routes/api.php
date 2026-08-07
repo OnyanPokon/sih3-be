@@ -84,7 +84,7 @@ Route::prefix('landing')->group(function () {
     });
 
     Route::prefix('tag')->group(function () {
-        Route::get('/', [TagController::class, 'index']);
+        Route::get('/', [TagController::class, 'landing']);
     });
 });
 

@@ -31,6 +31,12 @@ class TagResource extends JsonResource
             }),
             'nama' => $this->nama,
             'deskripsi' => $this->deskripsi,
+            'warna' => $this->warna,
+            'icon' => $this->icon,
+            'kategori_id' => $this->kategori_id,
+            'kategori' => $this->whenLoaded('kategori', function () {
+                return KategoriResource::make($this->kategori);
+            }),
             'referensi_type' => $referensiTypeAlias,
             'referensi_id' => $this->referensi_id,
             'referensi' => $this->whenLoaded('referensi', function () {

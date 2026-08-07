@@ -27,8 +27,24 @@ class TagController extends Controller
     #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
     #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
     #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
+    #[QueryParameter('kategori_id', description: 'Kategori id atau daftar kategori id. Bisa dikirim sebagai array atau dipisah koma.', type: 'string', default: '', example: '1,2')]
     public function index(Request $request) {
         $data = $this->tagService->getAll($request);
+
+        return $this->successResponseWithDataIndex(
+            $data,
+            TagResource::collection($data),
+            'Data tag berhasil diambil',
+            Response::HTTP_OK
+        );
+    }
+
+    #[QueryParameter('per_page', description: 'Number of items per page.', type: 'int', default: 10, example: 20)]
+    #[QueryParameter('page', description: 'The page number.', type: 'int', default: 1, example: 1)]
+    #[QueryParameter('search', description: 'The search query.', type: 'string', default: '', example: 'title')]
+    #[QueryParameter('kategori_id', description: 'Kategori id atau daftar kategori id. Bisa dikirim sebagai array atau dipisah koma.', type: 'string', default: '', example: '1,2')]
+    public function landing(Request $request) {
+        $data = $this->tagService->getLanding($request);
 
         return $this->successResponseWithDataIndex(
             $data,

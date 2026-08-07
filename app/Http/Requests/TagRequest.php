@@ -24,6 +24,9 @@ class TagRequest extends FormRequest
         return [
             'nama' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
+            'warna' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/'],
+            'icon' => 'nullable|string|max:255',
+            'kategori_id' => 'required|integer|exists:kategori,id',
             'referensi_type' => 'nullable|string|in:wilayah_sungai,App\Models\WilayahSungai',
             'referensi_id' => 'nullable|integer',
         ];
@@ -35,6 +38,12 @@ class TagRequest extends FormRequest
             'nama.required' => 'Nama tag wajib diisi.',
             'nama.string' => 'Nama tag harus berupa string.',
             'nama.max' => 'Nama tag maksimal 255 karakter.',
+            'warna.regex' => 'Warna harus berupa kode hex yang valid.',
+            'icon.string' => 'Icon harus berupa string.',
+            'icon.max' => 'Icon maksimal 255 karakter.',
+            'kategori_id.required' => 'Kategori wajib diisi.',
+            'kategori_id.integer' => 'ID kategori harus berupa angka.',
+            'kategori_id.exists' => 'Kategori tidak ditemukan.',
             'referensi_type.in' => 'Tipe referensi tidak valid.',
         ];
     }
