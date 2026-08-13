@@ -283,6 +283,50 @@ class DashboardApiTest extends TestCase
             ->assertJsonPath('data.kuesioner', ['rata_rata_nilai' => 6, 'jumlah_responden' => 3]);
     }
 
+    public function test_admin_without_unor_returns_zero_counts_without_error(): void
+    {
+        $unor = $this->makeUnor();
+        $kategori = $this->makeKategori('hidrologi');
+        $owner = $this->makeUser('admin', $unor);
+        $adminTanpaUnor = $this->makeUser('admin');
+
+        $artikel = $this->createArtikel($owner, $unor, $kategori);
+        $artikel->syncTags([$this->createTag($owner, $this->createWilayahSungai($unor, $kategori, 'WS Satu'))->id]);
+        $this->createBerita($owner, $unor, $kategori);
+        $this->createPemetaan($owner, $unor, $kategori);
+        $this->createPosPengamatan($this->createJenisPos($owner, $unor, $kategori));
+        $this->createProdukHukum($owner, $unor);
+        $this->createKuesioner($artikel, ['nilai' => 5]);
+
+        Sanctum::actingAs($adminTanpaUnor);
+
+        $this->getJson('/api/dashboard/statistik')
+            ->assertOk()
+            ->assertJsonPath('data.quick_access', [
+                'artikel' => 0,
+                'berita' => 0,
+                'pemetaan' => 0,
+                'pos' => 0,
+            ]);
+
+        $this->getJson('/api/dashboard/wilayah-sungai')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.artikel', 0)
+            ->assertJsonPath('data.0.berita', 0)
+            ->assertJsonPath('data.0.pos', 0);
+
+        $this->getJson('/api/dashboard/aktivitas-terbaru')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+
+        $this->getJson('/api/dashboard/statistik-tambahan')
+            ->assertOk()
+            ->assertJsonCount(0, 'data.top_artikel')
+            ->assertJsonCount(0, 'data.pos_per_jenis')
+            ->assertJsonPath('data.kuesioner', ['rata_rata_nilai' => 0, 'jumlah_responden' => 0]);
+    }
+
     public function test_admin_scoping_applies_to_unor_bearing_endpoints(): void
     {
         $unorSatu = $this->makeUnor('Unor Satu');
