@@ -4,6 +4,7 @@ use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthSsoController;
 use App\Http\Controllers\BeritaController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DokumenArtikelController;
 use App\Http\Controllers\JenisPosController;
 use App\Http\Controllers\KategoriController;
@@ -93,6 +94,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/ganti-password', [AuthController::class, 'gantiPassword']);
+    });
+
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/statistik', [DashboardController::class, 'statistik']);
+        Route::get('/wilayah-sungai', [DashboardController::class, 'wilayahSungai']);
+        Route::get('/aktivitas-terbaru', [DashboardController::class, 'aktivitasTerbaru']);
+        Route::get('/statistik-tambahan', [DashboardController::class, 'statistikTambahan']);
     });
 
     Route::prefix('role')->group(function () {
