@@ -23,19 +23,42 @@ class KategoriService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->with('unors')->latest();
+        $user = auth()->user();
+
+        $data = $this->model->with('unors');
+
+        // Filter berdasarkan Unor jika user memilik role admin (bukan superadmin)
+        if ($user && $user->hasRole('admin')) {
+            $unorId = $user->personil?->unor_id;
+
+            if (!$unorId) {
+                return $request->query('per_page') === 'all'
+                    ? $this->model->whereRaw('1 = 0')->get()
+                    : $this->model->whereRaw('1 = 0')->paginate(10);
+            }
+
+            $data->whereHas('unors', function ($q) use ($unorId) {
+                $q->where('unor_id', $unorId);
+            });
+        }
 
         if ($search = $request->query('search')) {
             $data->where('nama_kategori', 'like', '%' . $search . '%');
         }
 
         if ($unorId = $request->query('unor_id')) {
-            $data->whereHas('unors', function($q) use ($unorId) {
+            $data->whereHas('unors', function ($q) use ($unorId) {
                 $q->where('unor_id', $unorId);
             });
         }
 
-        return $data->paginate($per_page);
+        $data->latest();
+
+        if ($request->query('per_page') === 'all') {
+            return $data->get();
+        }
+
+        return $data->paginate((int)$per_page);
     }
 
     public function landing()

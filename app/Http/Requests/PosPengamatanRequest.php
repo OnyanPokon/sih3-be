@@ -26,6 +26,8 @@ class PosPengamatanRequest extends FormRequest
             'nama' => 'required|string|max:255',
             'koordinat' => 'required|string',
             'alamat' => 'required|string',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'exists:tags,id',
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Kategori extends Model
 {
@@ -28,5 +29,10 @@ class Kategori extends Model
     public function berita()
     {
         return $this->hasMany(Berita::class);
+    }
+
+    public function tag(): HasOne
+    {
+        return $this->hasOne(Tag::class);
     }
 }

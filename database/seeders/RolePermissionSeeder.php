@@ -37,7 +37,9 @@ class RolePermissionSeeder extends Seeder
             'lihat_pemetaan',
             'lihat_berita',
             'perbarui_profil',
-            'lihat_wilayah_sungai'
+            'lihat_wilayah_sungai',
+            'kelola_tag',
+            'kelola_tags',
         ];
 
         foreach ($permissions_superadmin as $permission) {
@@ -57,12 +59,17 @@ class RolePermissionSeeder extends Seeder
             'dashboard',
             'kelola_personil',
             'perbarui_unor',
+            'kelola_jenis_pos',
+            'kelola_pos_pengamatan',
+            'kelola_produk_hukum',
             'perbarui_profil',
             'kelola_artikel',
             'kelola_berita',
             'kelola_pemetaan',
             'lihat_kategori',
-            'kelola_wilayah_sungai'
+            'kelola_wilayah_sungai',
+            'kelola_tag',
+            'kelola_tags',
         ];
 
         foreach ($permissions_admin as $permission) {

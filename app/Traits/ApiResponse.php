@@ -40,7 +40,7 @@ trait ApiResponse
                 'total' => $data_model['total'],
                 'last_page' => $data_model['last_page']
             ];
-        } else if ($data_model['pagination']['current_page']) {
+        } elseif (isset($data_model['pagination']['current_page'])) {
             $response['pagination'] = [
                 'current_page' => $data_model['pagination']['current_page'],
                 'per_page' => $data_model['pagination']['per_page'],

@@ -26,6 +26,8 @@ class JenisPosRequest extends FormRequest
             'nama' => 'required|string|max:255',
             'kewenangan' => 'required|string|max:255',
             'status' => 'sometimes|in:publikasi,draft',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'exists:tags,id',
         ];
     }
 

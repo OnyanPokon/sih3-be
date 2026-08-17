@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\DB;
 use App\Traits\FileUpload;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class WilayahSungaiService {
+class WilayahSungaiService
+{
     use FileUpload;
 
     protected $model;
@@ -28,11 +29,13 @@ class WilayahSungaiService {
         $data = $this->model->with(['kategori', 'unor']);
 
         // Hanya filter berdasarkan Unor & Kategori jika user memiliki role admin (bukan superadmin)
-        if ($user->hasRole('admin')) {
+        if ($user && $user->hasRole('admin')) {
             $unorId = $user->personil?->unor_id;
 
             if (!$unorId) {
-                return $this->model->whereRaw('1 = 0')->paginate($per_page);
+                return $request->query('per_page') === 'all'
+                    ? $this->model->whereRaw('1 = 0')->get()
+                    : $this->model->whereRaw('1 = 0')->paginate(10);
             }
 
             // Ambil kategori yang terasosiasi dengan unor user
@@ -41,7 +44,9 @@ class WilayahSungaiService {
                 ->pluck('kategori_id');
 
             if ($categoryIds->isEmpty()) {
-                return $this->model->whereRaw('1 = 0')->paginate($per_page);
+                return $request->query('per_page') === 'all'
+                    ? $this->model->whereRaw('1 = 0')->get()
+                    : $this->model->whereRaw('1 = 0')->paginate(10);
             }
 
             $data->where('unor_id', $unorId)
@@ -54,13 +59,17 @@ class WilayahSungaiService {
             $data->where('nama', 'like', '%' . $search . '%');
         }
 
-        return $data->paginate($per_page);
+        if ($request->query('per_page') === 'all') {
+            return $data->get();
+        }
+
+        return $data->paginate((int)$per_page);
     }
 
     public function store($request)
     {
         try {
-            $validatedData = $request->validated();  
+            $validatedData = $request->validated();
             $user = auth()->user();
             $unorId = $user->personil?->unor_id;
 
@@ -92,7 +101,7 @@ class WilayahSungaiService {
         }
 
         $data = $query->find($id);
-        
+
         if (!$data) {
             throw new NotFoundHttpException('Data tidak ditemukan');
         }
@@ -116,7 +125,7 @@ class WilayahSungaiService {
             $data->update($validatedData);
 
             return $data;
-        } catch(Exception $e) {           
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -129,7 +138,7 @@ class WilayahSungaiService {
                 $this->unlinkPhoto($data->thumbnail);
             }
             $data->delete();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -169,7 +178,7 @@ class WilayahSungaiService {
         $query = $this->model->with(['kategori', 'unor']);
 
         if ($kategoriSlug = $request->query('kategori')) {
-            $query->whereHas('kategori', function($q) use ($kategoriSlug) {
+            $query->whereHas('kategori', function ($q) use ($kategoriSlug) {
                 $q->where('slug', $kategoriSlug);
             });
         }

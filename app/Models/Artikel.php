@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasTags;
 use Illuminate\Database\Eloquent\Model;
 
 class Artikel extends Model
 {
+    use HasTags;
+
     protected $table = 'artikel';
 
     protected $guarded = [];

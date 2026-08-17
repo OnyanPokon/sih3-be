@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use Exception;
 use App\Models\Artikel;
+use App\Models\WilayahSungai;
 use App\Exceptions\ServiceException;
 use App\Traits\FileUpload;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,7 @@ class ArtikelService
     public function landing($request)
     {
         $per_page = $request->per_page ?? 100;
-        $data = $this->model->where('status', 'publikasi')->latest();
+        $data = $this->model->with(['tags.referensi', 'tags.kategori'])->where('status', 'publikasi')->latest();
 
         if ($search = $request->query('search')) {
             $data->where('judul', 'like', '%' . $search . '%');
@@ -42,12 +43,26 @@ class ArtikelService
             });
         }
 
+        if ($tagId = $request->query('tag_id')) {
+            $data->whereHas('tags', function ($query) use ($tagId) {
+                $query->where('tags.id', $tagId);
+            });
+        }
+
+        if ($wilayahSungaiId = $request->query('wilayah_sungai_id')) {
+            $data->whereHas('tags', function ($query) use ($wilayahSungaiId) {
+                $query->where('referensi_type', WilayahSungai::class)
+                    ->where('referensi_id', $wilayahSungaiId);
+            });
+        }
+
         return $data->paginate($per_page);
     }
 
     public function detail($slug)
     {
-        $data = $this->model->where('slug', $slug)
+        $data = $this->model->with(['tags.referensi', 'tags.kategori'])
+            ->where('slug', $slug)
             ->where('status', 'publikasi')
             ->first();
 
@@ -63,7 +78,7 @@ class ArtikelService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $data = $this->model->with(['tags.referensi', 'tags.kategori'])->latest();
 
         if ($search = $request->query('search')) {
             $data->where('judul', 'like', '%' . $search . '%');
@@ -79,6 +94,19 @@ class ArtikelService
 
         if ($kategori = $request->query('kategori')) {
             $data->where('kategori', $kategori);
+        }
+
+        if ($tagId = $request->query('tag_id')) {
+            $data->whereHas('tags', function ($query) use ($tagId) {
+                $query->where('tags.id', $tagId);
+            });
+        }
+
+        if ($wilayahSungaiId = $request->query('wilayah_sungai_id')) {
+            $data->whereHas('tags', function ($query) use ($wilayahSungaiId) {
+                $query->where('referensi_type', WilayahSungai::class)
+                    ->where('referensi_id', $wilayahSungaiId);
+            });
         }
 
         /** @var \App\Models\User $user */
@@ -113,6 +141,10 @@ class ArtikelService
                 'user_id' => $validatedData['user_id'],
             ]);
 
+            if (isset($validatedData['tag_ids']) && is_array($validatedData['tag_ids'])) {
+                $artikel->syncTags($validatedData['tag_ids']);
+            }
+
             if ($request->hasFile('thumbnails')) {
                 foreach ($request->file('thumbnails') as $file) {
                     $thumbnail_artikel = $this->uploadPhotoAndConvertToWebp($file, $this->path_thumbnail);
@@ -142,7 +174,7 @@ class ArtikelService
 
     public function show($id)
     {
-        $data = $this->model->find($id);
+        $data = $this->model->with(['tags.referensi', 'tags.kategori'])->find($id);
 
         if (!$data) {
             throw new NotFoundHttpException('Data tidak ditemukan');
@@ -156,6 +188,10 @@ class ArtikelService
             $validatedData = $request->validated();
             $data = $this->show($id);
             $data->update($validatedData);
+
+            if (isset($validatedData['tag_ids']) && is_array($validatedData['tag_ids'])) {
+                $data->syncTags($validatedData['tag_ids']);
+            }
 
             return $data;
         } catch (Exception $e) {

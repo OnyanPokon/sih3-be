@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasTags;
 use Illuminate\Database\Eloquent\Model;
 
 class PosPengamatan extends Model
 {
+    use HasTags;
+
     protected $table = 'pos_pengamatan';
 
     protected $guarded = [];

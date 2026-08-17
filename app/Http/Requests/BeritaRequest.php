@@ -27,6 +27,8 @@ class BeritaRequest extends FormRequest
             'thumbnail' => 'nullable|mimes:jpg,png,jpeg|max:2048',
             'kategori_id' => 'required|exists:kategori,id',
             'status' => 'sometimes|in:publikasi,draft',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'exists:tags,id',
         ];
     }
 

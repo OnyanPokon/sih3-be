@@ -32,9 +32,15 @@ class UnorService
         return $data->paginate($per_page);
     }
 
-    public function landing()
+    public function landing($request)
     {
         $data = $this->model->where('status', 'aktif')->latest();
+
+        if ($categorySlug = $request->query('category_slug')) {
+        $data->whereHas('kategoris', function ($query) use ($categorySlug) {
+            $query->where('slug', $categorySlug);
+        });
+    }
 
         return $data->get();
     }
