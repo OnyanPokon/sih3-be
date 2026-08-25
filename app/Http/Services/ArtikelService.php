@@ -92,8 +92,8 @@ class ArtikelService
             $data->where('unor_id', $unor_id);
         }
 
-        if ($kategori = $request->query('kategori')) {
-            $data->where('kategori', $kategori);
+        if ($kategoriId = $request->query('kategori_id') ?? $request->query('kategori')) {
+            $data->where('kategori_id', $kategoriId);
         }
 
         if ($tagId = $request->query('tag_id')) {
@@ -112,8 +112,13 @@ class ArtikelService
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user->hasRole('admin')) {
-            $data->where('unor_id', $user->personil->unor->id);
+        if ($user && $user->hasRole('admin')) {
+            $unorId = $user->personil?->unor?->id ?? $user->personil?->unor_id;
+            if (!$unorId) {
+                $data->whereRaw('1 = 0');
+            } else {
+                $data->where('unor_id', $unorId);
+            }
         }
 
         return $data->paginate($per_page);
@@ -124,8 +129,13 @@ class ArtikelService
         try {
             $validatedData = $request->validated();
             $validatedData['slug'] = str()->slug($validatedData['judul']);
-            $validatedData['unor_id'] = Auth::user()->personil->unor->id;
-            $validatedData['user_id'] = Auth::user()->id;
+            $user = Auth::user();
+            $unorId = $user->personil?->unor?->id ?? $user->personil?->unor_id;
+            if (!$unorId) {
+                throw new Exception('User tidak memiliki unit organisasi yang valid');
+            }
+            $validatedData['unor_id'] = $unorId;
+            $validatedData['user_id'] = $user->id;
             $validatedData['status'] = 'publikasi';
             $validatedData['tanggal_publikasi'] = now();
 

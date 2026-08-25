@@ -39,8 +39,10 @@ class KategoriSeeder extends Seeder
             ],
         ];
 
+        $unorIds = \App\Models\Unor::pluck('id')->toArray();
+
         foreach ($kategoriData as $kategori) {
-            \App\Models\Kategori::updateOrCreate(
+            $cat = \App\Models\Kategori::updateOrCreate(
                 ['slug' => $kategori['slug']],
                 [
                     'nama_kategori' => $kategori['nama_kategori'],
@@ -48,6 +50,10 @@ class KategoriSeeder extends Seeder
                     'deskripsi' => $kategori['deskripsi'],
                 ]
             );
+
+            if (!empty($unorIds)) {
+                $cat->unors()->syncWithoutDetaching($unorIds);
+            }
         }
     }
 }

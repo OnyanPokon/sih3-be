@@ -160,6 +160,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/', [PemetaanController::class, 'store']);
         Route::get('/{id}', [PemetaanController::class, 'show']);
         Route::put('/{id}', [PemetaanController::class, 'update']);
+        Route::post('/{id}/customize', [PemetaanController::class, 'customize']);
+        Route::post('/{id}/reset', [PemetaanController::class, 'reset']);
         Route::delete('/{id}', [PemetaanController::class, 'destroy']);
     });
 
