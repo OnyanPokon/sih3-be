@@ -1,39 +1,38 @@
+name: container-backend-sih3
 services:
-    app:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        image: ${SERVER_NAME:-app}_image_frankenphp
-        container_name: ${SERVER_NAME}_frankenphp
-        volumes:
-            - ./../:/app
-            - ./caddyFIle/Caddyfile:/etc/caddy/Caddyfile
-        ports:
-            - ${SERVER_PORT}:80
-        environment:
-            FRANKENPHP_CONFIG: ${FRANKENPHP_CONFIG}
-        deploy:
-            resources:
-                limits:
-                    cpus: ${SERVER_CPU}
-                    memory: ${SERVER_MEMORY}
-    # queue-worker:
-    #     image: ${SERVER_NAME:-app}_image_frankenphp
-    #     container_name: ${SERVER_NAME}_queue_worker
-    #     volumes:
-    #         - ./../:/app
-    #     command: php /app/artisan queue:work --sleep=3 --tries=3 --timeout=90
-    #     deploy:
-    #         resources:
-    #             limits:
-    #                 cpus: ${SERVER_CPU}
-    #                 memory: ${SERVER_MEMORY}
-    # scheduler:
-    #     depends_on:
-    #         - app
-    #     image: ${SERVER_NAME:-app}_image_frankenphp
-    #     container_name: ${SERVER_NAME:-app}_scheduler
-    #     command: cron -f
-    #     volumes:
-    #         - ./../:/app
-    #     restart: unless-stopped
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
+    image: ${SERVER_NAME:-backend-sih3}:php8.2.35
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes:
+      - ../volume/data:/app/storage
+      - ../.env:/app/.env:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    ports:
+      - "${SERVER_PORT:-8000}:80"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    healthcheck:
+      test: [CMD, curl, -fsS, http://localhost/up]
+      interval: 15s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: ${SERVER_CPU:-0.5}
+          memory: ${SERVER_MEMORY:-512M}

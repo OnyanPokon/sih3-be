@@ -1,0 +1,22 @@
+{
+    auto_https off
+    admin off
+    frankenphp
+}
+:80 {
+    root * /app/public
+    encode zstd gzip
+    route {
+        @php path_regexp php (?i)\.php
+        respond @php 403
+        @script {
+            method POST PUT PATCH
+            path_regexp script (?i)\.(phtml|phar|cgi|pl|py|rb|sh|exe|dll|so|jsp|asp|aspx)(/|$)
+        }
+        respond @script 403
+        php_server
+    }
+    log {
+        format json
+    }
+}
