@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:php8.2.35-bookworm
+FROM dunglas/frankenphp:php8.2.36-bookworm
 ENV TZ=Asia/Makassar XDG_CONFIG_HOME=/tmp/caddy/config XDG_DATA_HOME=/tmp/caddy/data
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends curl ffmpeg default-mysql-client unzip \

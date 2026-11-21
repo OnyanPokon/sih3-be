@@ -1,6 +1,6 @@
 # Laravel API dengan FrankenPHP PHP 8.2.35
 
-Konfigurasi utama berada di folder ini. Project Compose `container-backend-sih3`,
+Konfigurasi utama berada di folder ini. Project Compose `container-sih3` (melalui opsi `-p`),
 image `backend-sih3:php8.2.35`, port host default 8000. Konfigurasi Nginx lama
 hanya disimpan sebagai referensi; jangan jalankan bersamaan pada port/data yang sama.
 
@@ -13,16 +13,16 @@ cp .env.example .env # hanya jika belum ada
 cd docker
 cp .env.example .env # hanya jika belum ada
 ./build.sh --pull=false
-docker compose config --quiet
-docker compose up -d --force-recreate
-docker compose ps
+docker compose -p container-sih3 config --quiet
+docker compose -p container-sih3 up -d --force-recreate
+docker compose -p container-sih3 ps
 curl -fsS http://localhost:8000/up
 ```
 
 Atur koneksi database, mail, SSO, queue dan secret di `.env` root sebelum start.
 Database host dapat menggunakan `host.docker.internal`; `127.0.0.1` di container
 menunjuk container sendiri. Database eksternal tidak disediakan stack ini.
-Migration dijalankan sesuai prosedur aplikasi: `docker compose exec app php artisan migrate --force`.
+Migration dijalankan sesuai prosedur aplikasi: `docker compose -p container-sih3 exec app php artisan migrate --force`.
 Build membuat `.env` yang belum ada dan menghasilkan APP_KEY kosong tanpa menampilkan key.
 Jangan mengganti APP_KEY aplikasi yang sudah berisi data terenkripsi.
 Compose membaca `.env` root melalui `env_file` dan memasangnya read-only pada `/app/.env`.
@@ -50,8 +50,8 @@ Runtime root ditolak. Perbaikan permission tanpa rebuild:
 
 ```bash
 ./prepare-storage.sh
-docker compose exec app sh -c 'whoami; id; ls -ld /app /app/storage'
-docker compose exec app sh -c 'f=$(mktemp /app/storage/.probe.XXXXXX); rm "$f"'
+docker compose -p container-sih3 exec app sh -c 'whoami; id; ls -ld /app /app/storage'
+docker compose -p container-sih3 exec app sh -c 'f=$(mktemp /app/storage/.probe.XXXXXX); rm "$f"'
 ```
 
 NFS root-squash, SELinux, user namespace atau filesystem read-only mungkin perlu
@@ -64,10 +64,10 @@ terbawa ke production. Override APP_*_CACHE ditolak; gunakan path standar.
 
 ```bash
 cd docker
-docker compose logs --tail 100 -f app
-docker compose stop
-docker compose start
-docker compose down
+docker compose -p container-sih3 logs --tail 100 -f app
+docker compose -p container-sih3 stop
+docker compose -p container-sih3 start
+docker compose -p container-sih3 down
 ```
 
 `stop`/`start` mempertahankan container dan data. `down` menghapus container/network;
@@ -78,8 +78,8 @@ Setelah perubahan source, Dockerfile, PHP/extensions, entrypoint atau php.ini:
 
 ```bash
 ./build.sh --pull=false
-docker compose up -d --force-recreate
-docker compose exec app php -v
+docker compose -p container-sih3 up -d --force-recreate
+docker compose -p container-sih3 exec app php -v
 ```
 
 Perubahan UID/GID juga memerlukan build dan helper ulang. Perubahan resource limit,

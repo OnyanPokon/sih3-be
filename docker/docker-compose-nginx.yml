@@ -35,7 +35,7 @@ services:
           - network_container
     php:
         container_name: php_${SERVER_NAME}
-        image: php:8.2-fpm-alpine
+        image: php:8.2.36-fpm-alpine
         depends_on:
             - app
         volumes:
