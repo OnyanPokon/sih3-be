@@ -22,7 +22,7 @@ class GantiPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'password_lama' => 'required|string|min:8',
+            'password_lama' => 'required|string',
             'password_baru' => 'required|string|min:8',
             'konfirmasi_password_baru' => 'required|string|min:8|same:password_baru',
         ];
@@ -40,7 +40,6 @@ class GantiPasswordRequest extends FormRequest
             'konfirmasi_password_baru.same' => 'Konfirmasi password baru harus sama dengan password baru.',
             'password_lama.required' => 'Password lama harus diisi.',
             'password_lama.string' => 'Password lama harus berupa string.',
-            'password_lama.min' => 'Password lama minimal 8 karakter.',
         ];
     }
 }

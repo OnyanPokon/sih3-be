@@ -163,6 +163,68 @@ class PemetaanService
         return response()->json(['error' => 'No map data found for this entry'], 404);
     }
 
+    public function customizeGeoJson($request, $id)
+    {
+        try {
+            $pemetaan = $this->show($id);
+            $geojson = $request->input('geojson');
+
+            if (empty($geojson)) {
+                throw new ConflictHttpException('Data GeoJSON tidak boleh kosong.');
+            }
+
+            $geojsonString = is_string($geojson) ? $geojson : json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+            // Validasi JSON
+            json_decode($geojsonString);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new ConflictHttpException('Format GeoJSON tidak valid.');
+            }
+
+            if ($pemetaan->tipe === 'upload' && !empty($pemetaan->file)) {
+                // Backup file original jika belum ada
+                if (empty($pemetaan->file_original)) {
+                    if (Storage::disk('public')->exists($pemetaan->file)) {
+                        $originalFileName = 'pemetaan/original_' . basename($pemetaan->file);
+                        Storage::disk('public')->copy($pemetaan->file, $originalFileName);
+                        $pemetaan->file_original = $originalFileName;
+                    }
+                }
+
+                // Overwrite file utama dengan data GeoJSON yang dikustomisasi
+                Storage::disk('public')->put($pemetaan->file, $geojsonString);
+                $pemetaan->save();
+            } else if ($pemetaan->tipe === 'manual') {
+                $pemetaan->koordinat = is_array($geojson) ? $geojson : json_decode($geojsonString, true);
+                $pemetaan->save();
+            }
+
+            return $pemetaan;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function resetGeoJson($id)
+    {
+        try {
+            $pemetaan = $this->show($id);
+
+            if ($pemetaan->tipe === 'upload' && !empty($pemetaan->file_original)) {
+                if (Storage::disk('public')->exists($pemetaan->file_original)) {
+                    Storage::disk('public')->copy($pemetaan->file_original, $pemetaan->file);
+                    Storage::disk('public')->delete($pemetaan->file_original);
+                }
+                $pemetaan->file_original = null;
+                $pemetaan->save();
+            }
+
+            return $pemetaan;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function update($request, $id)
     {
         try {
@@ -178,15 +240,19 @@ class PemetaanService
                         'pemetaan'
                     );
                     $this->deleteMapFile($pemetaan->file);
+                    $this->deleteMapFile($pemetaan->file_original);
                     $dataToUpdate['file'] = $newFilePath;
+                    $dataToUpdate['file_original'] = null;
                     $dataToUpdate['koordinat'] = null;
                 } else {
                     unset($dataToUpdate['file']);
                 }
             } else {
                 $this->deleteMapFile($pemetaan->file);
+                $this->deleteMapFile($pemetaan->file_original);
                 $dataToUpdate['koordinat'] = $validatedData['koordinat'];
                 $dataToUpdate['file'] = null;
+                $dataToUpdate['file_original'] = null;
             }
 
             $pemetaan->update($dataToUpdate);
@@ -201,6 +267,7 @@ class PemetaanService
             $data = $this->show($id);
 
             $data->tipe === 'upload' ? $this->deleteMapFile($data->file) : null;
+            $data->file_original ? $this->deleteMapFile($data->file_original) : null;
             $data->delete();
         } catch (Exception $e) {
             throw $e;

@@ -4,6 +4,7 @@ use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthSsoController;
 use App\Http\Controllers\BeritaController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DokumenArtikelController;
 use App\Http\Controllers\JenisPosController;
 use App\Http\Controllers\KategoriController;
@@ -16,8 +17,10 @@ use App\Http\Controllers\PersonilController;
 use App\Http\Controllers\PosPengamatanController;
 use App\Http\Controllers\ProdukHukumController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\ThumbnailArtikelController;
 use App\Http\Controllers\UnorController;
+use App\Http\Controllers\WilayahSungaiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +39,10 @@ Route::prefix("lupa-password")->controller(LupaPasswordController::class)->group
 Route::prefix('landing')->group(function () {
     Route::prefix('unor')->group(function () {
         Route::get('/', [UnorController::class, 'landing']);
+    });
+
+    Route::prefix('wilayah-sungai')->group(function () {
+        Route::get('/', [WilayahSungaiController::class, 'landing']);
     });
 
     Route::prefix('kategori')->group(function () {
@@ -76,6 +83,10 @@ Route::prefix('landing')->group(function () {
     Route::prefix('kuesioner')->group(function () {
         Route::post('/', [KuesionerController::class, 'store']);
     });
+
+    Route::prefix('tag')->group(function () {
+        Route::get('/', [TagController::class, 'landing']);
+    });
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -83,6 +94,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/ganti-password', [AuthController::class, 'gantiPassword']);
+    });
+
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/statistik', [DashboardController::class, 'statistik']);
+        Route::get('/wilayah-sungai', [DashboardController::class, 'wilayahSungai']);
+        Route::get('/aktivitas-terbaru', [DashboardController::class, 'aktivitasTerbaru']);
+        Route::get('/statistik-tambahan', [DashboardController::class, 'statistikTambahan']);
     });
 
     Route::prefix('role')->group(function () {
@@ -108,6 +126,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::put('/{id}', [PersonilController::class, 'update']);
         Route::put('/reset-password/{id}', [PersonilController::class, 'resetPassword']);
         Route::put('/update-profil/{id}', [PersonilController::class, 'updateProfil']);
+        Route::put('/status/{id}', [PersonilController::class, 'updateStatus']);
         Route::delete('/{id}', [PersonilController::class, 'destroy']);
     });
 
@@ -128,11 +147,21 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::delete('/{id}', [KategoriController::class, 'destroy']);
     });
 
+    Route::prefix('wilayah-sungai')->group(function () {
+        Route::get('/', [WilayahSungaiController::class, 'index']);
+        Route::post('/', [WilayahSungaiController::class, 'store']);
+        Route::get('/{id}', [WilayahSungaiController::class, 'show']);
+        Route::put('/{id}', [WilayahSungaiController::class, 'update']);
+        Route::delete('/{id}', [WilayahSungaiController::class, 'destroy']);
+    });
+
     Route::prefix('pemetaan')->group(function () {
         Route::get('/', [PemetaanController::class, 'index']);
         Route::post('/', [PemetaanController::class, 'store']);
         Route::get('/{id}', [PemetaanController::class, 'show']);
         Route::put('/{id}', [PemetaanController::class, 'update']);
+        Route::post('/{id}/customize', [PemetaanController::class, 'customize']);
+        Route::post('/{id}/reset', [PemetaanController::class, 'reset']);
         Route::delete('/{id}', [PemetaanController::class, 'destroy']);
     });
 
@@ -207,5 +236,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/export', [KuesionerController::class, 'export']);
         Route::get('/{id}', [KuesionerController::class, 'show']);
         Route::delete('/{id}', [KuesionerController::class, 'destroy']);
+    });
+
+    Route::prefix('tag')->group(function () {
+        Route::get('/', [TagController::class, 'index']);
+        Route::post('/', [TagController::class, 'store']);
+        Route::get('/{id}', [TagController::class, 'show']);
+        Route::put('/{id}', [TagController::class, 'update']);
+        Route::delete('/multi-delete', [TagController::class, 'multiDestroy']);
+        Route::delete('/{id}', [TagController::class, 'destroy']);
     });
 });

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasTags;
 use Illuminate\Database\Eloquent\Model;
 
 class JenisPos extends Model
 {
+    use HasTags;
+
     protected $guarded = [];
 
     protected $table = 'jenis_pos';

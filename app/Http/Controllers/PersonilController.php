@@ -104,6 +104,20 @@ class PersonilController extends Controller
         );
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string|in:aktif,nonaktif',
+        ]);
+
+        $this->personilService->updateStatus($id, $request->status);
+
+        return $this->successResponse(
+            'Berhasil mengubah status personil',
+            Response::HTTP_OK
+        );
+    }
+
     public function multiDestroy(Request $request)
     {
         $this->personilService->multiDestroy($request->ids);

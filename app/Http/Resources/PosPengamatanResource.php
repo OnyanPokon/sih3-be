@@ -20,6 +20,7 @@ class PosPengamatanResource extends JsonResource
             'nama' => $this->nama,
             'koordinat' => $this->koordinat,
             'alamat' => $this->alamat,
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

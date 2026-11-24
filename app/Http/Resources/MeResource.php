@@ -18,8 +18,20 @@ class MeResource extends JsonResource
             'id' => $this->id,
             'username' => $this->username,
             'email' => $this->email,
-            'role' => $this->getRoleNames()[0],
-            'unor' => $this->personil->unor->only('id', 'nama', 'wilayah'),
+            'role' => $this->getRoleNames()->first(),
+
+            'unor' => [
+                'id' => $this->personil?->unor?->id,
+                'nama' => $this->personil?->unor?->nama,
+                'wilayah' => $this->personil?->unor?->wilayah,
+                'kategoris' => $this->personil?->unor?->kategoris->map(function ($kategori) {
+                    return [
+                        'id' => $kategori->id,
+                        'nama' => $kategori->nama_kategori,
+                    ];
+                }),
+            ],
+
             'permissions' => $this->getPermissionsViaRoles()->pluck('name'),
         ];
     }

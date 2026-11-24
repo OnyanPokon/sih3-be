@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -21,70 +22,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AuthSsoService
 {
-    protected $model;
-    private $apiUrl;
-    protected $accessToken;
-
-
-    public function __construct(User $model)
-    {
-        $this->model = $model;
-        $this->apiUrl = env('SSO_URL');
-        $this->accessToken = null;
-    }
-
-    private function connectSso($credentials)
-    {
-        $payload = [
-            'grant_type' => 'password',
-            'client_id' => env('SSO_CLIENT_ID'),
-            'client_secret' => env('SSO_CLIENT_SECRET'),
-            'username' => $credentials['email'],
-            'password' => $credentials['password'],
-        ];
-        $url = $this->apiUrl . '/api/v2/oauth/token';
-        try {
-            $response = Http::post($url, $payload);
-
-            if (!$response->successful()) {
-                throw new \Exception($response->json()['message'] ?? 'Gagal terhubung ke SSO.');
-            }
-
-            $this->accessToken = $response->json()['access_token'];
-
-            return $response->json()['access_token'];
-        } catch (Exception $e) {
-            throw new ServiceException('Gagal terhubung ke SSO: ' . $e->getMessage(), 500);
-        }
-    }
-
-    private function getSsoUserData()
-    {
-        $url = $this->apiUrl . '/api/v2/me';
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->accessToken,
-            ])->get($url);
-
-            if (!$response->successful()) {
-                throw new \Exception('Gagal mengambil data pengguna dari SSO.');
-            }
-
-            return $response->json();
-        } catch (Exception $e) {
-            throw new ServiceException('Gagal mengambil data pengguna dari SSO: ' . $e->getMessage(), 500);
-        }
-    }
-
-    public function me($request)
-    {
-        $data = $request->user();
-        if (!$data) {
-            throw new Exception('User tidak ditemukan', 404);
-        }
-        return $data;
-    }
-
     public function loginCode($request)
     {
         try {
@@ -106,33 +43,23 @@ class AuthSsoService
             ]);
 
             $response = $client->post($tokenPath, [
-                'multipart' => [
-                    [
-                        'name' => 'grant_type',
-                        'contents' => 'authorization_code',
-                    ],
-                    [
-                        'name' => 'client_id',
-                        'contents' => $clientId,
-                    ],
-                    [
-                        'name' => 'client_secret',
-                        'contents' => $clientSecret,
-                    ],
-                    [
-                        'name' => 'redirect_uri',
-                        'contents' => $redirect_uri,
-                    ],
-                    [
-                        'name' => 'code',
-                        'contents' => $code,
-                    ]
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'grant_type' => 'authorization_code',
+                    'client_id' => $clientId,
+                    'client_secret' => $clientSecret,
+                    'redirect_uri' => $redirect_uri,
+                    'code' => $code,
                 ],
                 'http_errors' => false,
             ]);
             $statusCode = $response->getStatusCode();
-            $body = json_decode((string)$response->getBody(), true);
+            $bodyStr = (string)$response->getBody();
+            $body = json_decode($bodyStr, true);
             if ($statusCode !== 200 || !isset($body['access_token'])) {
+                \Illuminate\Support\Facades\Log::error('SSO Token Error: ' . $bodyStr);
                 $message = $body['message'] ?? $body['error_description'] ?? 'Email atau password salah';
                 throw new ConflictHttpException($message);
             }
@@ -142,49 +69,14 @@ class AuthSsoService
             if (!$me) {
                 throw new Exception('Gagal mengambil profil pengguna dari SSO (Profile)', 500);
             }
-            DB::beginTransaction();
-
-            $user = User::where('email', $me['email'])->first();
-
-            if (!$user) {
-                $unor = Unor::where('nama', $me['unorname'])->first();
-
-                if (empty($me['unorname'])) {
-                    throw new NotFoundHttpException('Unit organisasi belum diatur di SSO');
-                }
-
-                if (!$unor) {
-                    throw new NotFoundHttpException('Unit organisasi tidak terdaftar di website SIH3');
-                }
-
-                $user = User::create([
-                    'email' => $me['email'],
-                    'username' => $me['nama'] ?? $me['email'],
-                    'password' => Hash::make(uniqid()),
-                    'telepon' => $me['nomor'] ?? null,
-                    'is_default_password' => 0,
-                    'is_verified' => 0,
-                ]);
-
-                Personil::create([
-                    'user_id' => $user->id,
-                    'nama' => $me['nama'],
-                    'unor_id' => $unor->id,
-                    'nip' => $me['nip'] ?? null,
-                    'no_hp' => $me['nomor'] ?? null,
-                    'status' => 'aktif',
-                ]);
-
-                $user->assignRole('admin');
-            } else {
-                $user->username = $me['nama'] ?? $me['email'];
-                $user->save();
-            }
-
-            DB::commit();
-
+            Log::info('me', [$me]);
+            $user = $this->updateOrCreateUser($me);
             if (!$user) {
                 throw new Exception('Gagal mengambil profil pengguna dari SSO', 500);
+            }
+
+            if ($user->personil && $user->personil->status === 'nonaktif') {
+                throw new ConflictHttpException('Akun Anda belum aktif. Silakan hubungi administrator.');
             }
 
             $expiry = Carbon::now()->addSeconds($body['expires_in'] ?? 3600);
@@ -221,14 +113,8 @@ class AuthSsoService
                 'token' => $newToken->plainTextToken,
             ];
         } catch (GuzzleException $e) {
-            if (DB::transactionLevel() > 0) {
-                DB::rollBack();
-            }
             throw new Exception('Gagal menghubungi server SSO: ' . $e->getMessage(), 500, $e);
         } catch (Exception $e) {
-            if (DB::transactionLevel() > 0) {
-                DB::rollBack();
-            }
             throw $e;
         }
     }
@@ -287,96 +173,61 @@ class AuthSsoService
         }
     }
 
-    public function updatOrCreateUser($profileSSo)
+    public function updateOrCreateUser($profileSSo)
     {
+        $unorName = isset($profileSSo['unorname']) ? trim($profileSSo['unorname']) : '';
+        $unorId = null;
+
+        if ($unorName !== '') {
+            $unor = Unor::where('nama', $unorName)->first();
+            if (!$unor) {
+                $unor = Unor::create([
+                    'nama' => $unorName,
+                    'wilayah' => '-',
+                    'status' => 'nonaktif',
+                ]);
+            }
+            $unorId = $unor->id;
+        }
+
         $isNew = false;
         $user = User::where('email', $profileSSo['email'])->first();
+
+        $userData = [
+            'email' => $profileSSo['email'],
+            'username' => $profileSSo['nama'] ?? $profileSSo['email'],
+        ];
+
         if (!$user) {
-            $user = User::create([
-                'email' => $profileSSo['email'],
-                'username' => $profileSSo['nama'] ?? $profileSSo['email'],
-                'password' => Hash::make(uniqid()), // Password acak karena login menggunakan SSO
-                'telepon' => $profileSSo['nomor'] ?? null,
-                'is_default_password' => 0,
-                'is_verified' => 0,
-            ]);
+            $userData['password'] = Hash::make(uniqid());
+            $user = User::create($userData);
             $isNew = true;
+
+            $user->assignRole('admin');
         } else {
-            $user->username = $profileSSo['nama'] ?? $profileSSo['email'];
-            // $isNew = true;
+            $user->update($userData);
+        }
+
+        $personnel = Personil::where('user_id', $user->id)->first();
+        if (!$personnel) {
+            $personnel = new Personil();
+            $personnel->user_id = $user->id;
+            $personnel->status = 'nonaktif';
+        } else if ($isNew) {
+            $personnel->status = 'nonaktif';
+        }
+
+        $personnel->unor_id = $unorId;
+        $personnel->nip = isset($profileSSo['nip']) ? trim($profileSSo['nip']) : null;
+        $personnel->nama = $profileSSo['nama'] ?? $user->username;
+        $personnel->no_hp = $profileSSo['nomor_telepon'] ?? ($profileSSo['nomor'] ?? null);
+        $personnel->jabatan = $profileSSo['jabatan'] ?? null;
+        $personnel->save();
+
+        if ($isNew) {
+            // event(new UserBaruSsoEvent($user));
         }
 
         return $user;
-    }
-
-    public function login($request)
-    {
-        DB::beginTransaction();
-        try {
-            $validate = $request->validated();
-
-            $credentials = filter_var($validate['email'], FILTER_VALIDATE_EMAIL)
-                ? ['email' => $validate['email'], 'password' => $validate['password']]
-                : ['username' => $validate['email'], 'password' => $validate['password']];
-
-            $connectSso = $this->connectSso($credentials);
-
-            if ($connectSso) {
-                $ssoUserData = $this->getSsoUserData();
-
-                $user = User::where('username', $validate['email'])->orWhere('email', $validate['email'])->first();
-
-                if ($user) {
-                    // kondisi ketika email atau username sudah terdaftar didatabase lokal
-                    $token = $user->createToken('auth_token')->plainTextToken;
-                    $data = [
-                        'token_type' => 'Bearer',
-                        'token' => $token,
-                    ];
-                } else {
-                    // cek apakah unor sudah terdaftar atau tidak
-                    $unor = Unor::where('nama', $ssoUserData['unorname'])->first();
-
-                    if ($ssoUserData['unorname'] == null || $ssoUserData['unorname'] == '') {
-                        throw new NotFoundHttpException('Unit organisasi belum diatur di SSO');
-                    }
-
-                    if (!$unor) {
-                        throw new NotFoundHttpException('Unit organisasi tidak terdaftar di website SIH3');
-                    }
-
-                    // buat user baru
-                    $newUser = User::create([
-                        'username' => $ssoUserData['nik'],
-                        'email' => $ssoUserData['email'],
-                        'password' => bcrypt($validate['password']),
-                    ]);
-
-                    // buat personil baru huhuy
-                    $newPersonil = Personil::create([
-                        'user_id' => $newUser->id,
-                        'nama' => $ssoUserData['nama'],
-                        'unor_id' => $unor->id,
-                        'nip' => $ssoUserData['nip'] ?? null,
-                        'no_hp' => $ssoUserData['nomor'] ?? null,
-                        'status' => 'aktif',
-                    ]);
-
-                    $newUser->assignRole('admin');
-
-                    $token = $newUser->createToken('auth_token')->plainTextToken;
-                    $data = [
-                        'token_type' => 'Bearer',
-                        'token' => $token,
-                    ];
-                }
-            }
-
-            DB::commit();
-            return $data;
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
     }
 }

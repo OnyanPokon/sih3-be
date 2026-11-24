@@ -23,7 +23,7 @@ class PosPengamatanService
     public function landing($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $data = $this->model->with(['tags.referensi', 'jenis_pos'])->latest();
 
         if ($search = $request->query('search')) {
             $data->where('nama', 'like', '%' . $search . '%');
@@ -39,7 +39,7 @@ class PosPengamatanService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $data = $this->model->with(['tags.referensi', 'jenis_pos'])->latest();
 
         if ($search = $request->query('search')) {
             $data->where('nama', 'like', '%' . $search . '%');
@@ -56,7 +56,12 @@ class PosPengamatanService
     {
         try {
             $validatedData = $request->validated();
-            $this->model->create($validatedData);
+            $pos = $this->model->create($validatedData);
+
+            if (isset($validatedData['tag_ids']) && is_array($validatedData['tag_ids'])) {
+                $pos->syncTags($validatedData['tag_ids']);
+            }
+
             return $validatedData;
         } catch (Exception $e) {
 
@@ -100,7 +105,7 @@ class PosPengamatanService
 
     public function show($id)
     {
-        $data = $this->model->find($id);
+        $data = $this->model->with(['tags.referensi', 'jenis_pos'])->find($id);
 
         if (!$data) {
             throw new NotFoundHttpException('Data tidak ditemukan');
@@ -114,6 +119,10 @@ class PosPengamatanService
             $validatedData = $request->validated();
             $data = $this->show($id);
             $data->update($validatedData);
+
+            if (isset($validatedData['tag_ids']) && is_array($validatedData['tag_ids'])) {
+                $data->syncTags($validatedData['tag_ids']);
+            }
 
             return $data;
         } catch (Exception $e) {

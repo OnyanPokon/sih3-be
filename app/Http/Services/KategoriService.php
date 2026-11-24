@@ -23,13 +23,42 @@ class KategoriService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $user = auth()->user();
+
+        $data = $this->model->with('unors');
+
+        // Filter berdasarkan Unor jika user memilik role admin (bukan superadmin)
+        if ($user && $user->hasRole('admin')) {
+            $unorId = $user->personil?->unor_id;
+
+            if (!$unorId) {
+                return $request->query('per_page') === 'all'
+                    ? $this->model->whereRaw('1 = 0')->get()
+                    : $this->model->whereRaw('1 = 0')->paginate(10);
+            }
+
+            $data->whereHas('unors', function ($q) use ($unorId) {
+                $q->where('unor_id', $unorId);
+            });
+        }
 
         if ($search = $request->query('search')) {
             $data->where('nama_kategori', 'like', '%' . $search . '%');
         }
 
-        return $data->paginate($per_page);
+        if ($unorId = $request->query('unor_id')) {
+            $data->whereHas('unors', function ($q) use ($unorId) {
+                $q->where('unor_id', $unorId);
+            });
+        }
+
+        $data->latest();
+
+        if ($request->query('per_page') === 'all') {
+            return $data->get();
+        }
+
+        return $data->paginate((int)$per_page);
     }
 
     public function landing()
@@ -50,7 +79,13 @@ class KategoriService
 
             $validatedData['slug'] = str()->slug($validatedData['nama_kategori']);
 
-            $this->model->create($validatedData);
+            $unorIds = $request->input('unor_ids');
+            unset($validatedData['unor_ids']);
+
+            $category = $this->model->create($validatedData);
+            if ($request->has('unor_ids')) {
+                $category->unors()->sync($unorIds);
+            }
             return $validatedData;
         } catch (Exception $e) {
 
@@ -60,7 +95,7 @@ class KategoriService
 
     public function show($id)
     {
-        $data = $this->model->find($id);
+        $data = $this->model->with('unors')->find($id);
 
         if (!$data) {
             throw new NotFoundHttpException('Data tidak ditemukan');
@@ -83,7 +118,13 @@ class KategoriService
 
             $validatedData['slug'] = str()->slug($validatedData['nama_kategori']);
 
+            $unorIds = $request->input('unor_ids');
+            unset($validatedData['unor_ids']);
+
             $data->update($validatedData);
+            if ($request->has('unor_ids')) {
+                $data->unors()->sync($unorIds);
+            }
 
             return $data;
         } catch (Exception $e) {

@@ -19,62 +19,78 @@ class UserSeeder extends Seeder
     {
         $roleSuperAdmin = Role::where('name', 'superadmin')->first();
 
-        $userBapppeda = User::create([
-            'username' => 'superadmin',
-            'email' => 'superadmin@app.id',
-            'password' => bcrypt('password'),
-        ]);
+        $userBapppeda = User::firstOrCreate(
+            ['username' => 'superadmin'],
+            [
+                'email' => 'superadmin@app.id',
+                'password' => bcrypt('password'),
+            ]
+        );
 
-        $userBapppeda->assignRole($roleSuperAdmin);
+        if ($roleSuperAdmin) {
+            $userBapppeda->assignRole($roleSuperAdmin);
+        }
 
-        $bapppeda = Unor::create([
-            'nama' => 'Bappeda',
-            'wilayah' => 'Provinsi',
-            'alamat' => 'Bappeda',
-            'email' => 'bapppeda@app.id',
-            'no_hp' => '08123456789',
-        ]);
+        $bapppeda = Unor::firstOrCreate(
+            ['nama' => 'Bappeda'],
+            [
+                'wilayah' => 'Provinsi',
+                'alamat' => 'Bappeda',
+                'email' => 'bapppeda@app.id',
+                'no_hp' => '08123456789',
+            ]
+        );
 
-        $userBapppeda = Personil::create([
-            'user_id' => $userBapppeda->id,
-            'unor_id' => $bapppeda->id,
-            'nip' => '123456789',
-            'nama' => 'Bappeda',
-            'no_hp' => '08123456789',
-            'jabatan' => 'Operator',
-            'status' => 'aktif',
-        ]);
+        Personil::firstOrCreate(
+            ['user_id' => $userBapppeda->id],
+            [
+                'unor_id' => $bapppeda->id,
+                'nip' => '123456789',
+                'nama' => 'Bappeda',
+                'no_hp' => '08123456789',
+                'jabatan' => 'Operator',
+                'status' => 'aktif',
+            ]
+        );
 
-        Log::info('User Bapppeda berhasil di tambahkan');
+        Log::info('User Bapppeda berhasil di tambahkan atau sudah ada');
 
         $roleAdmin = Role::where('name', 'admin')->first();
 
-        $userEsdm = User::create([
-            'username' => 'admin',
-            'email' => 'admin@app.id',
-            'password' => bcrypt('password'),
-        ]);
+        $userEsdm = User::firstOrCreate(
+            ['username' => 'admin'],
+            [
+                'email' => 'admin@app.id',
+                'password' => bcrypt('password'),
+            ]
+        );
 
-        $userEsdm->assignRole($roleAdmin);
+        if ($roleAdmin) {
+            $userEsdm->assignRole($roleAdmin);
+        }
 
-        $esdm = Unor::create([
-            'nama' => 'Esdm',
-            'wilayah' => 'Provinsi',
-            'alamat' => 'Esdm',
-            'email' => 'esdm@app.id',
-            'no_hp' => '08123456789',
-        ]);
+        $esdm = Unor::firstOrCreate(
+            ['nama' => 'Esdm'],
+            [
+                'wilayah' => 'Provinsi',
+                'alamat' => 'Esdm',
+                'email' => 'esdm@app.id',
+                'no_hp' => '08123456789',
+            ]
+        );
 
-        $userEsdm = Personil::create([
-            'user_id' => $userEsdm->id,
-            'unor_id' => $esdm->id,
-            'nip' => '123456789',
-            'nama' => 'Esdm',
-            'no_hp' => '08123456789',
-            'jabatan' => 'Operator',
-            'status' => 'aktif',
-        ]);
+        Personil::firstOrCreate(
+            ['user_id' => $userEsdm->id],
+            [
+                'unor_id' => $esdm->id,
+                'nip' => '123456789',
+                'nama' => 'Esdm',
+                'no_hp' => '08123456789',
+                'jabatan' => 'Operator',
+                'status' => 'aktif',
+            ]
+        );
 
-        Log::info('User Esdm berhasil di tambahkan');
+        Log::info('User Esdm berhasil di tambahkan atau sudah ada');
     }
 }

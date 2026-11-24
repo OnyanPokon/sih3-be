@@ -28,6 +28,8 @@ class UpdateArtikelRequest extends FormRequest
             'status' => 'sometimes|in:publikasi,draft',
             'tanggal_publikasi' => 'sometimes|date',
             'kuesioner_tambahan' => 'sometimes|boolean',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'exists:tags,id',
         ];
     }
 

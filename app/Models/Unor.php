@@ -16,7 +16,13 @@ class Unor extends Model
         'logo',
         'website',
         'no_hp',
+        'status',
     ];
+
+    public function kategoris()
+    {
+        return $this->belongsToMany(Kategori::class, 'kategori_unor', 'unor_id', 'kategori_id');
+    }
 
     public function personil()
     {

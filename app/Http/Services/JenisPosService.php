@@ -21,10 +21,10 @@ class JenisPosService
     public function landing($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $data = $this->model->with(['tags.referensi', 'kategori', 'unor', 'user'])->latest();
 
         if ($search = $request->query('search')) {
-            $data->where('nama_pos', 'like', '%' . $search . '%')->orWhere('kewenangan', 'like', '%' . $search . '%');
+            $data->where('nama', 'like', '%' . $search . '%')->orWhere('kewenangan', 'like', '%' . $search . '%');
         }
 
         if ($status = $request->query('status')) {
@@ -39,13 +39,17 @@ class JenisPosService
             $data->where('kategori_id', $kategori_id);
         }
 
-        return $data->paginate($per_page);
+        if ($request->query('per_page') === 'all') {
+            return $data->get();
+        }
+
+        return $data->paginate((int)$per_page);
     }
 
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->latest();
+        $data = $this->model->with(['tags.referensi', 'kategori', 'unor', 'user'])->latest();
 
         if ($search = $request->query('search')) {
             $data->where('nama_pos', 'like', '%' . $search . '%')->orWhere('kewenangan', 'like', '%' . $search . '%');
@@ -63,7 +67,11 @@ class JenisPosService
             $data->where('kategori_id', $kategori_id);
         }
 
-        return $data->paginate($per_page);
+        if ($request->query('per_page') === 'all') {
+            return $data->get();
+        }
+
+        return $data->paginate((int)$per_page);
     }
 
     public function store($request)
@@ -75,17 +83,24 @@ class JenisPosService
             $validatedData['user_id'] = Auth::user()->id;
             $validatedData['slug'] = str()->slug($validatedData['nama']);
 
-            $this->model->create($validatedData);
-            return $validatedData;
-        } catch (Exception $e) {
+            $tagIds = $validatedData['tag_ids'] ?? null;
+            unset($validatedData['tag_ids']);
 
+            $jenisPos = $this->model->create($validatedData);
+
+            if (is_array($tagIds)) {
+                $jenisPos->syncTags($tagIds);
+            }
+
+            return $jenisPos;
+        } catch (Exception $e) {
             throw $e;
         }
     }
 
     public function show($id)
     {
-        $data = $this->model->find($id);
+        $data = $this->model->with(['tags.referensi', 'kategori', 'unor', 'user'])->find($id);
 
         if (!$data) {
             throw new NotFoundHttpException('Data tidak ditemukan');
@@ -101,9 +116,16 @@ class JenisPosService
             $validatedData['user_id'] = Auth::user()->id;
             $validatedData['slug'] = str()->slug($validatedData['nama']);
 
+            $tagIds = $validatedData['tag_ids'] ?? null;
+            unset($validatedData['tag_ids']);
+
             $data = $this->show($id);
 
             $data->update($validatedData);
+
+            if (is_array($tagIds)) {
+                $data->syncTags($tagIds);
+            }
 
             return $data;
         } catch (Exception $e) {

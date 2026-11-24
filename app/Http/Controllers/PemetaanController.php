@@ -101,6 +101,28 @@ class PemetaanController extends Controller
         return $data;
     }
 
+    public function customize(Request $request, $id)
+    {
+        $data = $this->pemetaanService->customizeGeoJson($request, $id);
+
+        return $this->successResponseWithData(
+            PemetaanResource::make($data),
+            'Berhasil menyimpan kustomisasi peta',
+            Response::HTTP_OK
+        );
+    }
+
+    public function reset($id)
+    {
+        $data = $this->pemetaanService->resetGeoJson($id);
+
+        return $this->successResponseWithData(
+            PemetaanResource::make($data),
+            'Berhasil mereset peta ke data awal',
+            Response::HTTP_OK
+        );
+    }
+
     public function update(UpdatePemetaanRequest $request, $id)
     {
         $this->pemetaanService->update($request, $id);

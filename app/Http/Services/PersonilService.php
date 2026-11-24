@@ -201,4 +201,13 @@ class PersonilService
             throw $e;
         }
     }
+
+    public function updateStatus($id, $status)
+    {
+        $data = $this->show($id);
+        $data->update([
+            'status' => $status
+        ]);
+        return $data;
+    }
 }
